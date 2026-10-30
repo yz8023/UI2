@@ -13,7 +13,11 @@
 
 ---
 
-## 两个入口
+## 在线看 / 两个入口
+
+- 门户页：<https://yz8023.github.io/UI2/>
+- 素材库 App：<https://yz8023.github.io/UI2/app/index.html>
+- 安装包：[Releases · v3.1](https://github.com/yz8023/UI2/releases/latest)（APK + 两个单文件 HTML 也一起附上）
 
 | 文件 | 是什么 |
 | --- | --- |
@@ -51,7 +55,7 @@ App 的 5 个入口：
 - 证书 SHA-256 `711ad44d4598fbe8ec8c1ddea35a0af02ea988ba6161353f9ec16976d055eba8`（自签名 debug keystore，非商店包）
 - 手势返回键先关详情再退出；`AndroidBridge.copy/.toast/.share/.open` 桥接系统剪贴板、Toast 与分享
 
-历史版本见 [Releases](../../releases)。
+下载直链：[`uikit-library-3.1.apk`](https://github.com/yz8023/UI2/releases/download/v3.1/uikit-library-3.1.apk)
 
 ## 源码结构
 
