@@ -13,3 +13,4 @@ apk/*.idsig
 .android/
 .playwright-cli/
 .sudo_as_admin_successful
+.local/
