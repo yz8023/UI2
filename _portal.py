@@ -140,7 +140,19 @@ def build():
     </a>
   </div>
 
-  <div class="sec">完整素材库 2.0 · 46 条素材 · 8 个分类</div>
+    <div class="sec">源码与安装包</div>
+  <div class="glass" style="padding:16px 18px">
+    <div class="note">
+      <b>仓库</b>：<a href="https://github.com/yz8023/UI2" style="color:var(--blue)">github.com/yz8023/UI2</a> ·
+      源码、生成器、Android 壳、CI 全在里面。<br>
+      <b>发布</b>：<a href="https://github.com/yz8023/UI2/releases/latest" style="color:var(--blue)">Releases · v3.1</a> —
+      APK 3.1（versionCode 5、零权限、1.0 MB）+ 两个单文件 HTML。<br>
+      <b>在线</b>：<a href="https://yz8023.github.io/UI2/app/index.html" style="color:var(--blue)">yz8023.github.io/UI2</a>
+      —— GitHub Pages 直接跑 App。
+    </div>
+  </div>
+
+<div class="sec">完整素材库 2.0 · 46 条素材 · 8 个分类</div>
   <div class="glass" style="overflow:hidden;padding:4px 6px">
     <table>
       <thead><tr><th>分类</th><th>条数</th><th>覆盖内容</th><th style="text-align:right">功能号</th></tr></thead>
