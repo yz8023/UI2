@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>滚轮被劫持，文档一步没动。 · 动效演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+/* ============ motion 专用 ============ */
+.casebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:12px;color:var(--ink-3)}
+.casebar a{text-decoration:none;color:var(--ink-2);background:var(--card-2);padding:5px 10px;border-radius:7px}
+.casebar a:hover{color:var(--ink);background:var(--card-3)}
+.stagewrap{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-top:16px}
+.stagebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.stagebar .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-3);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.readout b{color:var(--ink);font-weight:600}
+.readout .sep{opacity:.45}
+.canvasbox{position:relative;border-radius:14px;overflow:hidden;background:var(--paper,#fff);
+  box-shadow:inset 0 0 0 1px var(--line);touch-action:none;cursor:crosshair}
+.canvasbox canvas{display:block;width:100%;height:auto}
+.hint{font-size:12px;color:var(--ink-3);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.hint::before{content:"↳";opacity:.7}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+
+/* 提示词面板 */
+.prompt{margin-top:34px;border-radius:var(--r);background:var(--card);box-shadow:var(--sh);overflow:hidden}
+.prompt-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.prompt-h h2{font-size:15.5px}
+.prompt-h .pill{font-size:11px;padding:4px 9px;border-radius:6px;background:var(--card-2);color:var(--ink-3)}
+.prompt-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pcol{padding:17px 18px;min-width:0}
+.pcol + .pcol{border-left:1px solid var(--line)}
+.pcol h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;font-weight:600}
+.kv{display:grid;gap:7px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.kv div{display:grid;grid-template-columns:64px 1fr;gap:9px}
+.kv .k{color:var(--ink-3)}
+.kv .v{color:var(--ink)}
+.reqs{display:grid;gap:8px}
+.req{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);cursor:pointer;line-height:1.55}
+.req input{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:4px;margin-top:2px;flex:0 0 auto;
+  box-shadow:inset 0 0 0 1.5px var(--line-2);background:var(--card);cursor:pointer;position:relative}
+.req input:checked{background:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.req input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+.req b{color:var(--ink);font-weight:600}
+.prompt-foot{padding:0 18px 17px}
+textarea.custom{width:100%;min-height:56px;resize:vertical;padding:10px 12px;border-radius:10px;border:0;
+  background:var(--card-2);font:inherit;font-size:12.5px;color:var(--ink);outline:none;line-height:1.6;
+  box-shadow:inset 0 0 0 1px transparent}
+textarea.custom:focus{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+textarea.custom::placeholder{color:var(--ink-3)}
+.prompt-out{margin-top:14px;position:relative}
+pre.pcode{margin:0;padding:15px 16px;border-radius:12px;background:var(--card-2);color:var(--ink-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.8px;line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.copybar{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.copy-main{padding:9px 16px;border-radius:10px;background:var(--teal);color:#fff;font-size:13px;font-weight:600}
+[data-theme="dark"] .copy-main{color:#06211d}
+.copy-main:hover{background:color-mix(in srgb,var(--teal) 86%, #000)}
+.copy-main.done{background:var(--ok,#2c7a5b)}
+.copy-tip{font-size:11.5px;color:var(--ink-3)}
+.notes2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+.notes2 .card2{background:var(--card);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--sh)}
+.notes2 h3{font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.notes2 h3 .dotm{width:7px;height:7px;border-radius:50%;display:block}
+.notes2 ul{margin:0;padding:0;display:grid;gap:8px;font-size:12.8px;color:var(--ink-2);line-height:1.7}
+.notes2 li{list-style:none;display:grid;grid-template-columns:13px 1fr;gap:7px}
+.notes2 li::before{content:"·";color:var(--ink-3);font-weight:700}
+.notes2 b{color:var(--ink);font-weight:600}
+@media (max-width:900px){
+  .prompt-body{grid-template-columns:1fr}
+  .pcol + .pcol{border-left:0;border-top:1px solid var(--line)}
+  .notes2{grid-template-columns:1fr}
+}
+
+
+.railview{position:relative;height:400px;border-radius:14px;overflow:hidden;background:#edecEB;
+  box-shadow:inset 0 0 0 1px var(--line);cursor:crosshair}
+[data-theme="dark"] .railview{background:#151515}
+.rail{position:absolute;inset:0;display:flex;width:400%;will-change:transform}
+.act{width:25%;flex:0 0 25%;position:relative;display:flex;align-items:center;padding:0 40px}
+.act .words{font-size:clamp(26px,4.2vw,46px);line-height:1.12;letter-spacing:-.035em;color:#272424;font-weight:600}
+[data-theme="dark"] .act .words{color:#eceae7}
+.act .words span{display:inline-block;transform:translateY(8px);opacity:0}
+.act .card{position:absolute;right:44px;bottom:64px;background:#fbfcfd;border-radius:10px;padding:12px 14px;
+  font-size:11.5px;color:#3f3c3a;box-shadow:0 10px 30px rgba(0,0,0,.09);max-width:180px}
+[data-theme="dark"] .act .card{background:#20201e;color:#cfcdc8}
+.plane{position:absolute;pointer-events:none;will-change:transform}
+.plane.far{left:6%;top:8%;width:220px;height:220px;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,rgba(221,110,54,.30),rgba(221,110,54,0) 68%)}
+.plane.mid{right:16%;top:20%;width:130px;height:130px;border-radius:50%;
+  background:radial-gradient(circle at 50% 50%,rgba(154,169,102,.34),rgba(154,169,102,0) 70%)}
+.hairline{position:absolute;inset:0;pointer-events:none;opacity:.55}
+.hairline i{position:absolute;top:0;bottom:0;width:1px;background:#dcd9d5;transform:scaleY(0);transform-origin:top;
+  transition:transform .5s cubic-bezier(.215,.61,.355,1)}
+[data-theme="dark"] .hairline i{background:#2b2b28}
+.radar{position:absolute;right:34px;top:30px;width:120px;height:120px;border-radius:50%;
+  box-shadow:inset 0 0 0 1px rgba(39,36,36,.16);pointer-events:none}
+.radar i{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(151,171,116,.55),rgba(151,171,116,0) 70deg,transparent 360deg);
+  animation:spin 3.95s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.railhint{position:absolute;left:40px;bottom:22px;font-size:10.5px;letter-spacing:.16em;color:#8a8683}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部动效
+    </a>
+    <div class="tb-title">05 · <b>滚轮轨道</b></div>
+    <div class="tb-right">
+      <span class="pill">dom + css</span>
+      <a class="pill" href="https://github.com/feitangyuan/motion-web/tree/main/cases/wheel-rail" target="_blank" rel="noopener" style="text-decoration:none">源码 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">motion-web · case 05 · dom + css</div>
+    <h1 class="title">滚轮被劫持，文档一步没动。</h1>
+    <p class="lede">整页编排只由两个输入驱动：滚轮和指针。没有任何东西按计时器播放，页面加载时也不动。鼠标放下，页面是静的；移动它，每一层以不同幅度位移；转滚轮，一条轨道平移，而文档本身从不滚动。</p>
+    <div class="quote">「交互动效，是由鼠标滚轮或鼠标移动产生的运动。会自己漂的页面是屏保。」<small>cases/wheel-rail · 设计说明</small></div>
+    <div class="casebar">
+      <span>参考项目</span>
+      <a href="https://github.com/feitangyuan/motion-web" target="_blank" rel="noopener">feitangyuan/motion-web</a>
+      <a href="https://github.com/feitangyuan/motion-web/tree/main/cases/wheel-rail" target="_blank" rel="noopener">cases/wheel-rail</a>
+      <span style="color:var(--ink-3)">原参考：blink.trade（实测）；本页为机制复现</span>
+    </div>
+  </section>
+
+
+  <section class="stagewrap">
+    <div class="stagebar">
+      <span class="lbl">case 05 · wheel-rail · scrollY = 0</span>
+      <div class="readout"><b id="r5a">scrollY 0</b><span class="sep">·</span><span>rail <b id="r5b">0</b> px</span><span class="sep">·</span><span>距目标 <b id="r5c">0</b> px</span></div>
+    </div>
+    <div class="railview" id="rv5">
+      <div class="hairline" id="hl5"></div>
+      <div class="plane far" id="pl5f"></div>
+      <div class="plane mid" id="pl5m"></div>
+      <div class="radar" id="rd5"><i></i></div>
+      <div class="rail" id="rail5">
+        <div class="act"><div class="words" data-stagger="0">形状<br>先于<br>色彩</div><div class="card">近景卡片 · 视差最大</div></div>
+        <div class="act"><div class="words" data-stagger="1">滚轮<br>不是<br>滚动条</div><div class="card">轨道平移 · 文档不动</div></div>
+        <div class="act"><div class="words" data-stagger="2">每个词<br>都从<br>下方升起</div><div class="card">8px 升起 · 错开 0.55/n</div></div>
+        <div class="act"><div class="words" data-stagger="3">回到<br>开始<br>就退回去</div><div class="card">往回滚 = 反向播放</div></div>
+      </div>
+      <div class="railhint">把指针移到画面里 · 转动滚轮（页面不会滚动）</div>
+    </div>
+    <div class="ctrls">
+      <button class="btn sm" id="b5next">下一段</button>
+      <button class="btn sm ghost" id="b5reset">回到起点</button>
+      <span class="hint" style="margin:0">指针在画面上移动时，三层视差会以不同幅度跟随；右上角的扫描由它自己的时钟驱动。</span>
+    </div>
+    <p class="hint">这是「劫持派」：能算任意进度，但没有钉住；press-stack 是另一派，白拿钉住但从文档读进度。</p>
+  </section>
+
+
+
+  <section class="prompt">
+    <div class="prompt-h">
+      <h2>生成提示词</h2>
+      <span class="pill">参考项目 + 变更要求 → 一键复制</span>
+    </div>
+    <div class="prompt-body">
+      <div class="pcol">
+        <h3>01 · 参考项目</h3>
+        <div class="kv">
+          <div><span class="k">项目</span><span class="v">feitangyuan/motion-web（CC BY-NC 4.0）</span></div>
+          <div><span class="k">案例</span><span class="v">cases/wheel-rail · DOM + rAF</span></div>
+          <div><span class="k">机制</span><span class="v">滚轮 preventDefault 后累加进 target，轨道用 1−exp(−k·dt) 缓动；三层视差各不同幅度；每个词的低位升起由轨道进度驱动；雷达扫描用独立时钟 3.95s/圈。</span></div>
+          <div><span class="k">关键参数</span><span class="v">follow k=6.2 · 视差 far 69.5px / near 9.9px（≈7×）· 词升 8px、错开 0.55/n · 扫描 3.95s · 文档 scrollY 恒为 0</span></div>
+          <div><span class="k">判据</span><span class="v">滚轮必须被 cancel（defaultPrevented）· 40ms 后距目标 ≥ 数百 px（有惯性）· 三层视差幅度必须不同 · 静置 1.5s 后仍有元素在动</span></div>
+        </div>
+      </div>
+      <div class="pcol">
+        <h3>02 · 变更要求（可勾选 / 可自写）</h3>
+        <div class="reqs"><label class="req"><input type="checkbox" data-req="换掉整套配色与文案，只保留机制（改成我自己的品牌色）"><span>换掉整套配色与文案，只保留机制（改成我自己的品牌色）</span></label><label class="req"><input type="checkbox" data-req="改成移动端优先：全部交互换成单指手势，去掉悬停依赖"><span>改成移动端优先：全部交互换成单指手势，去掉悬停依赖</span></label><label class="req"><input type="checkbox" data-req="性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半"><span>性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半</span></label><label class="req"><input type="checkbox" data-req="零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图"><span>零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图</span></label><label class="req"><input type="checkbox" data-req="补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动"><span>补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动</span></label><label class="req"><input type="checkbox" data-req="改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏"><span>改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏</span></label></div>
+        <div style="margin-top:12px">
+          <textarea class="custom" id="promptCustom" placeholder="再补一句你的要求，例如：换成中秋主题、卡片文案改成订单数据……"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="prompt-foot">
+      <div class="prompt-out">
+        <pre class="pcode" id="promptBase">做一个单文件 HTML（DOM + rAF，无框架），复刻 motion-web 的 wheel-rail：一个由滚轮和指针驱动的整屏落地页。
+
+【机制要求】
+1) 页面本身不能滚动（document 的 scrollHeight - innerHeight = 0，window.scrollY 恒为 0）。
+2) 在一个固定视口大小的容器里放一条横向「轨道」，轨道里有 4 段内容（每段 100% 宽）。
+3) 滚轮事件必须绑定 {passive:false} 并 preventDefault()，把 deltaY 累加进一个 target；轨道位置用帧率无关的缓动接近它：
+   cur += (target - cur) * (1 - Math.exp(-6.2 * dt));
+   不要用 cur += (target-cur)*0.1，否则 120Hz 屏幕上快一倍。
+4) 三层视差：远景光斑、中景圆、近景卡片，各自对指针位移做不同幅度跟随（远景约 69px，近景约 10px，量级明显不同），并共享一个滞后常数。
+5) 每一段里的大标题按「每个词一个 span」，其 translateY(8px) → 0 与 opacity 0 → 1 由轨道位置驱动，同段内按 0.55/n 错开；往回滚动要能原样退回去（scrub，不能用一次性 transitionend 触发）。
+6) 除滚轮和指针外，允许且仅允许一个「不是输入驱动」的元素：一圈雷达扫描（柔和锥形渐变 + 独立 3.95s 时钟）。
+7) 背景要有一层细竖线网格：加载时自上而下画下来，之后靠近指针的竖线会微微上浮。
+8) DOM 要有实时读数：window.scrollY（用于证明没滚动）、轨道当前位移、距目标差值。
+9) 注意触控板惯性：滚轮事件在手指离开后还会持续约 1 秒，必要时加累加阈值与冷却。
+
+【配色（实测自参考站）】底 rgb(237,236,235) · 墨 rgb(39,36,36) · 暖色强调 rgb(221,110,54) 只出现在 12 个元素上 · 橄榄 rgb(154,169,102) · 提亮面 rgb(251,252,253) · 发丝线 rgb(220,217,213)。
+
+【自检标准】
+- 滚轮事件必须被取消（defaultPrevented = true）；
+- 一次滚动后 40ms，轨道应仍距目标数百 px（证明有惯性），900ms 后差距 < 5px；
+- 三层视差在角到角扫过时的位移比例应 ≥ 5×；
+- 指针离开 1.5 秒后，仍应有若干个元素在动（扫描），但不应该有布局在漂。
+
+输出完整 HTML。</pre>
+        <pre class="pcode" id="promptOut" style="display:none"></pre>
+        <div style="display:none" id="promptDummy"></div>
+      </div>
+      <div class="copybar">
+        <button class="copy-main" id="copyPrompt">一键复制提示词</button>
+        <span class="copy-tip">复制后直接贴给 AI 编码工具即可生成同款项目</span>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="notes2">
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--teal)"></span>可以照搬（机制层）</h3>
+      <ul><li><div><b>1 − exp(−k·dt) 缓动</b>：同一份代码在 60 / 120Hz 上手感一致。</div></li><li><div><b>滚轮劫持 + target 累加</b>：任意进度、可回退，适合叙事型页面。</div></li><li><div><b>三层视差共享滞后常数、不同幅度</b>：幅度相同就成了一个平面在滑。</div></li><li><div><b>保留一个非输入驱动的元素（扫描）</b>：页面在没人碰时也有生命，但不会「自己在漂」。</div></li><li><div><b>竖线网格 + 接近度响应</b>：二十来个元素就撑起了密度感。</div></li></ul>
+    </div>
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--red)"></span>不许照搬（皮层）</h3>
+      <ul><li><div><b>blink.trade 的具体配色与字体</b>：可迁移的是「暖色只花一次」。</div></li><li><div><b>4 段文案结构</b>：换成你的产品叙事。</div></li><li><div><b>69.5 / 9.9 这组像素值</b>：是 1440×900 下量出来的，视口变了要重测。</div></li></ul>
+    </div>
+  </section>
+
+  <nav class="pager"><a href="m04-press-stack.html"><div class="k">← 上一个</div><div class="t">04 粘性堆叠</div></a><a class="next" href="m06-toy-flipbook.html"><div class="k">下一个 →</div><div class="t">06 翻页动画玩具</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：演示是按 motion-web 案例公开的机制与实测参数做的原生复现（Canvas 2D / CSS / DOM，无框架无 CDN），用于投屏讲解；视觉细节经简化，不是原案例代码。<br>
+    <b>提示词</b>：勾选「变更要求」会自动拼进下方 prompt，可直接复制给任意 AI 编码工具。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2200);
+  };
+
+  /* 提示词面板：勾选/输入 → 实时重写 prompt → 一键复制 */
+  var base = document.getElementById('promptBase').textContent;
+  var out  = document.getElementById('promptOut');
+  var boxes= document.querySelectorAll('.req input');
+  var custom=document.getElementById('promptCustom');
+  function build(){
+    var lines=[base.trim()];
+    var picked=[];
+    boxes.forEach(function(b){ if(b.checked) picked.push('- '+b.dataset.req); });
+    if(picked.length) lines.push('\n【变更要求】\n'+picked.join('\n'));
+    if(custom.value.trim()) lines.push('\n【自定义要求】\n'+custom.value.trim());
+    out.textContent=lines.join('\n');
+  }
+  boxes.forEach(function(b){ b.addEventListener('change',build); });
+  custom.addEventListener('input',build);
+  build();
+  document.getElementById('copyPrompt').addEventListener('click',function(){
+    var text=out.textContent, btn2=this;
+    function done(){ btn2.classList.add('done'); var o=btn2.textContent; btn2.textContent='已复制 ✓';
+      setTimeout(function(){ btn2.classList.remove('done'); btn2.textContent=o; },1800); }
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ toast('请手动选择文本复制'); }
+      document.body.removeChild(ta);
+    }
+    if(window.AndroidBridge&&window.AndroidBridge.copy){ try{ window.AndroidBridge.copy(text); done(); return; }catch(e){} }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(fallback); }
+    else { fallback(); }
+  });
+})();
+</script>
+<script>
+
+(function(){
+  var view=document.getElementById('rv5'), rail=document.getElementById('rail5');
+  var far=document.getElementById('pl5f'), mid=document.getElementById('pl5m');
+  var rA=document.getElementById('r5a'), rB=document.getElementById('r5b'), rC=document.getElementById('r5c');
+  var maxX=0, target=0, cur=0, last=performance.now();
+  var acts=rail.querySelectorAll('.act');
+
+  /* 竖线网格：加载时画下来，之后随指针起伏 */
+  var hl=document.getElementById('hl5');
+  for(var i=0;i<11;i++){
+    var d=document.createElement('i');
+    d.style.left=(6+i*8.6)+'%';
+    d.style.transitionDelay=(i*60)+'ms';
+    hl.appendChild(d);
+  }
+  setTimeout(function(){ hl.querySelectorAll('i').forEach(function(x){ x.style.transform='scaleY(1)'; }); },120);
+
+  function layout(){
+    maxX=Math.max(0, rail.scrollWidth - view.clientWidth);
+    target=Math.min(target,maxX);
+  }
+  window.addEventListener('resize',layout); layout();
+
+  view.addEventListener('wheel',function(e){
+    e.preventDefault();
+    target=Math.max(0,Math.min(maxX,target + e.deltaY*1.15 + e.deltaX*0.6));
+  },{passive:false});
+
+  document.getElementById('b5next').addEventListener('click',function(){
+    target=Math.min(maxX,target+view.clientWidth);
+  });
+  document.getElementById('b5reset').addEventListener('click',function(){ target=0; });
+
+  var px=0, py=0, tx=0, ty=0;
+  view.addEventListener('pointermove',function(e){
+    var r=view.getBoundingClientRect();
+    tx=((e.clientX-r.left)/r.width-0.5)*2;
+    ty=((e.clientY-r.top)/r.height-0.5)*2;
+  });
+  view.addEventListener('pointerleave',function(){ tx=0; ty=0; });
+
+  var words=[].slice.call(rail.querySelectorAll('.words'));
+  words.forEach(function(w){
+    var txt=w.innerHTML.split('<br>');
+    w.innerHTML=txt.map(function(t){ return '<span>'+t+'</span>'; }).join('<br>');
+  });
+
+  function frame(now){
+    var dt=Math.min((now-last)/1000,1/30); last=now;
+    /* 帧率无关缓动 */
+    cur += (target-cur)*(1-Math.exp(-6.2*dt));
+    rail.style.transform='translate3d('+(-cur).toFixed(2)+'px,0,0)';
+
+    px += (tx-px)*(1-Math.exp(-4.2*dt));
+    py += (ty-py)*(1-Math.exp(-4.2*dt));
+    far.style.transform='translate3d('+(px*-69.5).toFixed(1)+'px,'+(py*-34).toFixed(1)+'px,0)';
+    mid.style.transform='translate3d('+(px*-30).toFixed(1)+'px,'+(py*-16).toFixed(1)+'px,0)';
+
+    /* 每个词的升起由它在轨道里的位置驱动 */
+    acts.forEach(function(act,i){
+      var p=((cur - i*view.clientWidth)/(view.clientWidth));
+      p=Math.max(0,Math.min(1,p));
+      var spans=act.querySelectorAll('.words span');
+      spans.forEach(function(s,k){
+        /* 第一屏（p 恒为 0）直接给足，保证落地不是空白页 */
+        var base=(i===0)?1:0;
+        var local=Math.max(0,Math.min(1,(p*(spans.length+1)-k)/1.2));
+        local=Math.max(base,local);
+        s.style.opacity=local.toFixed(3);
+        s.style.transform='translateY('+((1-local)*8).toFixed(2)+'px)';
+      });
+      var card=act.querySelector('.card');
+      var cp=Math.max(0,Math.min(1,p*1.4));
+      card.style.opacity=(0.35+cp*0.65).toFixed(2);
+      card.style.transform='translateY('+((1-cp)*18).toFixed(1)+'px)';
+    });
+
+    rA.textContent='scrollY '+window.scrollY;
+    rB.textContent=Math.round(cur);
+    rC.textContent=Math.round(target-cur);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  requestAnimationFrame(function(){ /* 首帧后校正 maxX */ setTimeout(layout,50); });
+})();
+
+</script>
+</body>
+</html>

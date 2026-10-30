@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>大厂 AI 界面的 5 个隐藏细节｜下篇 · 对比演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+.cand{font-size:12px;color:var(--ink-2);background:var(--card);border-radius:9px;padding:7px 10px;
+  box-shadow:inset 0 0 0 1px var(--line-2);display:flex;gap:8px;align-items:center}
+.cand span{background:var(--violet-2);color:var(--violet);border-radius:6px;padding:3px 8px}
+.cand span:first-of-type{outline:1.5px solid var(--violet)}
+.chat{height:190px;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:9px;position:relative}
+.msg{background:var(--card);border-radius:11px;padding:9px 11px;font-size:12.5px;color:var(--ink-2);
+  box-shadow:inset 0 0 0 1px var(--line);animation:popIn .28s var(--ease)}
+.msg.me{background:var(--teal-2);color:var(--ink);align-self:flex-end;box-shadow:none}
+.jump{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);font-size:11.5px;
+  padding:6px 12px;border-radius:99px;background:var(--ink);color:var(--bg);box-shadow:var(--sh2);z-index:3}
+[data-theme="dark"] .jump{background:var(--card-3);color:var(--ink)}
+.radbox{width:112px;height:112px;background:var(--violet-2);display:grid;place-items:center;
+  box-shadow:inset 0 0 0 1px var(--violet-3);transition:border-radius .18s var(--ease);margin:0 auto}
+.radinner{background:var(--card);box-shadow:inset 0 0 0 1px var(--line-2);transition:all .18s var(--ease)}
+.filerow{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:11px;padding:11px 13px;
+  box-shadow:inset 0 0 0 1px var(--line);min-width:0}
+.fico{color:var(--ink-3);flex:0 0 auto}
+.fname{font-size:13px;color:var(--ink);min-width:0;display:block}
+.fname.cut{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.fname.keep{display:flex;min-width:0}
+.fname.keep .stem{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0}
+.fname.keep .ext{flex:0 0 auto;color:var(--ink-2)}
+.splitview{display:flex;height:190px;background:var(--card);position:relative;user-select:none}
+.sp-left,.sp-right{display:grid;place-items:center;font-size:12.5px;color:var(--ink-3);min-width:0;overflow:hidden}
+.sp-left{background:var(--card-2);width:50%}
+.sp-right{flex:1}
+.sp-div{width:5px;background:var(--line-2);cursor:col-resize;position:relative;flex:0 0 auto;transition:background .2s}
+.sp-div::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:1px;height:22px;background:var(--card);opacity:.9}
+.sp-div:hover{background:var(--teal)}
+.splitview.collapsed .sp-right{width:0;flex:0}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部视频
+    </a>
+    <div class="tb-title">04 · <b>AI 界面 5 细节</b></div>
+    <div class="tb-right">
+      <span class="pill">02:50</span>
+      <a class="pill" href="https://www.bilibili.com/video/BV1jUnd66Em2" target="_blank" rel="noopener" style="text-decoration:none">原视频 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">Bilibili · KD一对A · AI 界面细节 · 第七期</div>
+    <h1 class="title">大厂 AI 界面的 5 个隐藏细节｜下篇</h1>
+    <p class="lede">这些细节平时没人说，但缺了就会让人骂「这软件好难用」：中文没上屏就误发送、看历史被拽回底部、圆角看着别扭、文件夹名被截成半截、分屏拖过头。逐个点开对比一下。</p>
+    <div class="metas">
+      <span class="pill v">输入法 / 滚动</span>
+      <span class="pill t">圆角 / 截断 / 分屏</span>
+      <span class="pill">2026-10-26</span>
+    </div>
+    <div class="quote">「AI 产品的打磨不在模型，在这些『你根本没注意，但一用就别扭』的地方。」</div>
+  </section>
+
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 01</span>
+      <div><h2>中文还在选字，Enter 就发出去了？</h2>
+      <p>点「开始拼音输入」，然后在两个输入框里各按一次 Enter。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 候选态直接发送</span><span class="count" id="imeStateA">未输入</span></div>
+        <div class="stage">
+          <input class="field" id="imeA" placeholder="在这里按 Enter 试试">
+          <div class="cand" id="candA" hidden>候选：<span>你好</span><span>拟好</span><span>你</span></div>
+        </div>
+        <p class="note" id="imeNoteA">把 Enter 一律当发送，选字时误触直接把半句话丢出去。</p>
+      </div>
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 先上屏，不发送</span><span class="count" id="imeStateB">未输入</span></div>
+        <div class="stage">
+          <input class="field" id="imeB" placeholder="在这里按 Enter 试试">
+          <div class="cand" id="candB" hidden>候选：<span>你好</span><span>拟好</span><span>你</span></div>
+        </div>
+        <p class="note" id="imeNoteB">候选态下 Enter 只负责「选字上屏」，绝不当成发送。</p>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn sm" id="imeStart">开始拼音输入</button>
+      <button class="btn sm ghost" id="imeEnd">结束输入</button>
+      <span class="count">真实中文输入法同样会触发 composition 状态</span>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 02</span>
+      <div><h2>看历史时，别把用户拽回底部</h2>
+      <p>点「持续输出」，然后把右边的列表往上滚——左边会一直把你拉回去。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 永远跟着最新</span><span class="count">scrollTop 被强制</span></div>
+        <div class="stage" style="padding:0;overflow:hidden">
+          <div class="chat" id="chatA"></div>
+        </div>
+        <p class="note">用户想翻两句之前的回答，每次新 token 落地就把他拽回来。</p>
+      </div>
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 上滚即停跟</span><span class="count" id="followB">跟随中</span></div>
+        <div class="stage" style="padding:0;overflow:hidden">
+          <div class="chat" id="chatB"></div>
+          <button class="jump" id="jumpB" hidden>↓ 回到最新</button>
+        </div>
+        <p class="note">一旦检测到用户在向上滚，就停止跟随，并给一个「回到最新」的按钮。</p>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn sm primary" id="streamBtn">持续输出</button>
+      <button class="btn sm ghost" id="streamStop">暂停</button>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 03</span>
+      <div><h2>同心圆角：外圈 = 内圈 + 间距</h2>
+      <p>拖滑块改内层内边距，看右边那个「外内同值」的角什么时候开始出戏。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 同心</span><span class="count" id="radA">外 20 / 内 12</span></div>
+        <div class="stage">
+          <div class="radbox" id="radOuterA"><div class="radinner" id="radInnerA"></div></div>
+        </div>
+        <p class="note">外圈半径跟着间距走，两个弧线看起来是同一个圆心。</p>
+      </div>
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 外内同值</span><span class="count" id="radB">外 20 / 内 20</span></div>
+        <div class="stage">
+          <div class="radbox" id="radOuterB"><div class="radinner" id="radInnerB"></div></div>
+        </div>
+        <p class="note">角看起来「胖了一块」，说不上哪里错，就是别扭。</p>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px;gap:14px">
+      <span class="count">间距</span>
+      <input type="range" id="radRange" min="2" max="16" value="8" style="max-width:260px">
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 04</span>
+      <div><h2>长文件名截断，也要留住扩展名</h2>
+      <p>同样宽度下，左边把 .docx 一起省略了，右边保住后缀。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 直接 ellipsis</span><span class="count">text-overflow</span></div>
+        <div class="stage">
+          <div class="filerow"><span class="fico">▤</span><span class="fname cut">2026年第三季度市场分析与增长策略复盘报告_v3_终稿_真的终稿.docx</span></div>
+        </div>
+        <p class="note">用户看不出这是 Word 还是 PDF，也就不知道该用什么打开。</p>
+      </div>
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 保留扩展名</span><span class="count">中间省略</span></div>
+        <div class="stage">
+          <div class="filerow"><span class="fico">▤</span><span class="fname keep"><span class="stem">2026年第三季度市场分析与增长策略复盘报告_v3_终稿_真的终稿</span><span class="ext">.docx</span></span></div>
+        </div>
+        <p class="note">名字再长，后缀永远在；还能顺手用后缀决定图标。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 05</span>
+      <div><h2>分屏拖过 80%，自动折叠</h2>
+      <p>拖中间的竖线。超过 80% 就折叠，按 Esc 或双击竖线复原。</p></div>
+    </div>
+    <div class="pane">
+      <div class="pane-h"><span class="tag v">Split view</span><span class="count" id="splitState">左 50% / 右 50%</span></div>
+      <div class="stage" style="padding:0;overflow:hidden">
+        <div class="splitview" id="splitview">
+          <div class="sp-left" id="spLeft"><span>对话区</span></div>
+          <div class="sp-div" id="spDiv"></div>
+          <div class="sp-right" id="spRight"><span>预览区</span></div>
+        </div>
+      </div>
+      <p class="note" id="splitNote">拖到 80% 以上会自动折叠成单栏，避免留下一条看不清的窄缝。</p>
+    </div>
+  </section>
+
+
+  <section class="notes">
+    <h2>这期视频的要点</h2>
+    <ul class="nlist"><li><div><b>输入法状态</b>：composition 期间 Enter 只能上屏，不能发送；否则用户会把半句话发出去。</div></li><li><div><b>滚动跟随</b>：往上滚就停止自动跟随，并给「回到最新」；不要用 scrollTop 硬拽。</div></li><li><div><b>描边只包一层</b>：不要在容器上再套一层边，按钮靠背景色区分即可。</div></li><li><div><b>圆角同心</b>：外圈半径 = 内圈半径 + 间距，否则角落会显得「胖」。</div></li><li><div><b>分屏阈值</b>：拖过 80% 自动折叠，Esc 复原、双击竖线回到 50/50。</div></li><li><div><b>彩蛋</b>：长文件名截断时，扩展名必须保留——它决定用户「用什么打开」。</div></li></ul>
+  </section>
+
+  <nav class="pager"><a href="03-大厂质感-5-招.html"><div class="k">← 上一个</div><div class="t">03 大厂质感 5 招</div></a><a class="next" href="05-下拉-vs-选择器.html"><div class="k">下一个 →</div><div class="t">05 下拉 vs 选择器</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：对比演示是按视频公开的要点做的交互还原，用于投屏讲解；组件形态与视频中演示的一致，但画面不是视频原片截图。<br>
+    <b>技术</b>：单文件 HTML，零外部依赖，可离线打开；所有页面统一套用同一段 CSS Reset。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2400);
+  };
+})();
+</script>
+<script>
+
+(function(){
+  /* 01 输入法 */
+  var state={A:false,B:false};
+  function setCand(el,on){ el.hidden=!on; }
+  var a=document.getElementById('imeA'), b=document.getElementById('imeB');
+  var candA=document.getElementById('candA'), candB=document.getElementById('candB');
+  var sA=document.getElementById('imeStateA'), sB=document.getElementById('imeStateB');
+  var nA=document.getElementById('imeNoteA'), nB=document.getElementById('imeNoteB');
+  var composing={A:false,B:false};
+  function bind(inp,key,cand,st,nt,label){
+    inp.addEventListener('compositionstart',function(){ composing[key]=true; setCand(cand,true); st.textContent='选字中'; });
+    inp.addEventListener('compositionend',function(){ composing[key]=false; setCand(cand,false); st.textContent='已上屏'; });
+    inp.addEventListener('keydown',function(e){
+      if(e.key!=='Enter') return;
+      e.preventDefault();
+      if(composing[key]){
+        if(key==='A'){ st.textContent='错误：已发送半句话'; nt.textContent='候选态按 Enter 被当成发送，输入框被清空，内容丢了。';
+          toast('半句话被发出去了'); inp.value=''; composing.A=false; setCand(cand,false); }
+        else { st.textContent='只上屏，未发送'; nt.textContent='Enter 只负责选字上屏，光标留在输入框，继续写。'; toast('上屏成功，没有发送'); }
+      } else {
+        st.textContent='已发送';
+        nt.textContent = label==='A' ? '正常态发送：这里两边行为一致。' : '正常态发送：内容已提交。';
+        toast('已发送：'+(inp.value||'（空）'));
+        inp.value='';
+      }
+    });
+  }
+  bind(a,'A',candA,sA,nA,'A'); bind(b,'B',candB,sB,nB,'B');
+  document.getElementById('imeStart').addEventListener('click',function(){
+    a.value='ni hao'; b.value='ni hao';
+    composing.A=true; composing.B=true;
+    setCand(candA,true); setCand(candB,true);
+    sA.textContent='选字中'; sB.textContent='选字中';
+    toast('现在按 Enter 试试');
+  });
+  document.getElementById('imeEnd').addEventListener('click',function(){
+    composing.A=false; composing.B=false; candA.hidden=true; candB.hidden=true;
+    sA.textContent='已结束'; sB.textContent='已结束';
+  });
+
+  /* 02 滚动跟随 */
+  var chatA=document.getElementById('chatA'), chatB=document.getElementById('chatB');
+  var jump=document.getElementById('jumpB'), followLabel=document.getElementById('followB');
+  var lines=['收到，我来梳理一下。','先看第一点：输入法状态。','第二点：滚动不能抢用户。','第三点：圆角要同心。','第四点：截断保留后缀。','第五点：分屏阈值 80%。','补充：Esc 应该能复原。','还在生成中…'];
+  var idx=0, timer=null, follow=true;
+  chatB.addEventListener('scroll',function(){
+    var near = chatB.scrollHeight - chatB.scrollTop - chatB.clientHeight < 24;
+    follow = near;
+    jump.hidden = near;
+    followLabel.textContent = near ? '跟随中' : '已停止跟随';
+  });
+  function push(){
+    var t=lines[idx%lines.length];
+    [chatA,chatB].forEach(function(c){
+      var d=document.createElement('div'); d.className='msg'; d.textContent=t; c.appendChild(d);
+    });
+    idx++;
+    chatA.scrollTop=chatA.scrollHeight;          /* 错误示范：无条件拽到底 */
+    if(follow) chatB.scrollTop=chatB.scrollHeight;
+  }
+  document.getElementById('streamBtn').addEventListener('click',function(){
+    if(timer) return; push(); timer=setInterval(push,700);
+  });
+  document.getElementById('streamStop').addEventListener('click',function(){ clearInterval(timer); timer=null; });
+  jump.addEventListener('click',function(){ chatB.scrollTop=chatB.scrollHeight; follow=true; jump.hidden=true; followLabel.textContent='跟随中'; });
+
+  /* 03 同心圆角 */
+  var range=document.getElementById('radRange');
+  function rad(){
+    var gap=parseInt(range.value,10);
+    var outer=20, inner=outer-gap;
+    var oA=document.getElementById('radOuterA'), iA=document.getElementById('radInnerA');
+    var oB=document.getElementById('radOuterB'), iB=document.getElementById('radInnerB');
+    oA.style.borderRadius=outer+'px'; oA.style.padding=gap+'px';
+    iA.style.borderRadius=Math.max(2,inner)+'px'; iA.style.width='100%'; iA.style.height='100%';
+    oB.style.borderRadius=outer+'px'; oB.style.padding=gap+'px';
+    iB.style.borderRadius=outer+'px'; iB.style.width='100%'; iB.style.height='100%';
+    document.getElementById('radA').textContent='外 '+outer+' / 内 '+Math.max(2,inner);
+    document.getElementById('radB').textContent='外 '+outer+' / 内 '+outer;
+  }
+  range.addEventListener('input',rad); rad();
+
+  /* 05 分屏 */
+  var sv=document.getElementById('splitview'), left=document.getElementById('spLeft'), div=document.getElementById('spDiv');
+  var stateEl=document.getElementById('splitState'), noteEl=document.getElementById('splitNote');
+  var dragging=false;
+  function setPct(p){
+    p=Math.max(12,Math.min(88,p));
+    if(p>80){ sv.classList.add('collapsed'); stateEl.textContent='已折叠（>80%）';
+      noteEl.textContent='超过 80% 自动折叠成单栏，避免留下一条看不清的窄缝。按 Esc 复原。'; return; }
+    sv.classList.remove('collapsed');
+    left.style.width=p+'%'; stateEl.textContent='左 '+Math.round(p)+'% / 右 '+Math.round(100-p)+'%';
+  }
+  function move(e){
+    if(!dragging) return;
+    var r=sv.getBoundingClientRect();
+    var x=(e.touches?e.touches[0].clientX:e.clientX);
+    setPct((x-r.left)/r.width*100);
+  }
+  div.addEventListener('mousedown',function(e){ dragging=true; e.preventDefault(); });
+  div.addEventListener('touchstart',function(e){ dragging=true; },{passive:true});
+  window.addEventListener('mousemove',move); window.addEventListener('touchmove',move,{passive:true});
+  window.addEventListener('mouseup',function(){ dragging=false; }); window.addEventListener('touchend',function(){ dragging=false; });
+  div.addEventListener('dblclick',function(){ sv.classList.remove('collapsed'); left.style.width='50%'; stateEl.textContent='左 50% / 右 50%'; });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && sv.classList.contains('collapsed')){
+      sv.classList.remove('collapsed'); left.style.width='50%'; stateEl.textContent='左 50% / 右 50%'; toast('Esc 复原了分屏');
+    }
+  });
+})();
+
+</script>
+</body>
+</html>

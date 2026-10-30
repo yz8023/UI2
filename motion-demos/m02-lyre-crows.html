@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Strum it and a word gets eaten. · 动效演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+/* ============ motion 专用 ============ */
+.casebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:12px;color:var(--ink-3)}
+.casebar a{text-decoration:none;color:var(--ink-2);background:var(--card-2);padding:5px 10px;border-radius:7px}
+.casebar a:hover{color:var(--ink);background:var(--card-3)}
+.stagewrap{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-top:16px}
+.stagebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.stagebar .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-3);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.readout b{color:var(--ink);font-weight:600}
+.readout .sep{opacity:.45}
+.canvasbox{position:relative;border-radius:14px;overflow:hidden;background:var(--paper,#fff);
+  box-shadow:inset 0 0 0 1px var(--line);touch-action:none;cursor:crosshair}
+.canvasbox canvas{display:block;width:100%;height:auto}
+.hint{font-size:12px;color:var(--ink-3);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.hint::before{content:"↳";opacity:.7}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+
+/* 提示词面板 */
+.prompt{margin-top:34px;border-radius:var(--r);background:var(--card);box-shadow:var(--sh);overflow:hidden}
+.prompt-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.prompt-h h2{font-size:15.5px}
+.prompt-h .pill{font-size:11px;padding:4px 9px;border-radius:6px;background:var(--card-2);color:var(--ink-3)}
+.prompt-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pcol{padding:17px 18px;min-width:0}
+.pcol + .pcol{border-left:1px solid var(--line)}
+.pcol h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;font-weight:600}
+.kv{display:grid;gap:7px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.kv div{display:grid;grid-template-columns:64px 1fr;gap:9px}
+.kv .k{color:var(--ink-3)}
+.kv .v{color:var(--ink)}
+.reqs{display:grid;gap:8px}
+.req{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);cursor:pointer;line-height:1.55}
+.req input{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:4px;margin-top:2px;flex:0 0 auto;
+  box-shadow:inset 0 0 0 1.5px var(--line-2);background:var(--card);cursor:pointer;position:relative}
+.req input:checked{background:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.req input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+.req b{color:var(--ink);font-weight:600}
+.prompt-foot{padding:0 18px 17px}
+textarea.custom{width:100%;min-height:56px;resize:vertical;padding:10px 12px;border-radius:10px;border:0;
+  background:var(--card-2);font:inherit;font-size:12.5px;color:var(--ink);outline:none;line-height:1.6;
+  box-shadow:inset 0 0 0 1px transparent}
+textarea.custom:focus{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+textarea.custom::placeholder{color:var(--ink-3)}
+.prompt-out{margin-top:14px;position:relative}
+pre.pcode{margin:0;padding:15px 16px;border-radius:12px;background:var(--card-2);color:var(--ink-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.8px;line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.copybar{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.copy-main{padding:9px 16px;border-radius:10px;background:var(--teal);color:#fff;font-size:13px;font-weight:600}
+[data-theme="dark"] .copy-main{color:#06211d}
+.copy-main:hover{background:color-mix(in srgb,var(--teal) 86%, #000)}
+.copy-main.done{background:var(--ok,#2c7a5b)}
+.copy-tip{font-size:11.5px;color:var(--ink-3)}
+.notes2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+.notes2 .card2{background:var(--card);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--sh)}
+.notes2 h3{font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.notes2 h3 .dotm{width:7px;height:7px;border-radius:50%;display:block}
+.notes2 ul{margin:0;padding:0;display:grid;gap:8px;font-size:12.8px;color:var(--ink-2);line-height:1.7}
+.notes2 li{list-style:none;display:grid;grid-template-columns:13px 1fr;gap:7px}
+.notes2 li::before{content:"·";color:var(--ink-3);font-weight:700}
+.notes2 b{color:var(--ink);font-weight:600}
+@media (max-width:900px){
+  .prompt-body{grid-template-columns:1fr}
+  .pcol + .pcol{border-left:0;border-top:1px solid var(--line)}
+  .notes2{grid-template-columns:1fr}
+}
+
+
+#c2{background:#d6c8b3}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部动效
+    </a>
+    <div class="tb-title">02 · <b>竖琴与乌鸦</b></div>
+    <div class="tb-right">
+      <span class="pill">canvas 2d</span>
+      <a class="pill" href="https://github.com/feitangyuan/motion-web/tree/main/cases/lyre-crows" target="_blank" rel="noopener" style="text-decoration:none">源码 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">motion-web · case 02 · canvas 2d</div>
+    <h1 class="title">Strum it and a word gets eaten.</h1>
+    <p class="lede">九根能拨的弦。拨弦会震落一个词；三只乌鸦在抢这些词，谁先到，谁就用自己的尾巴把那个词重写一遍。页面上没有任何东西被编排，每个可见事件都是上一个的结果，唯一的输入只有指针。</p>
+    <div class="quote">「不要时间线，要一个因果生态。」<small>cases/lyre-crows · 设计说明</small></div>
+    <div class="casebar">
+      <span>参考项目</span>
+      <a href="https://github.com/feitangyuan/motion-web" target="_blank" rel="noopener">feitangyuan/motion-web</a>
+      <a href="https://github.com/feitangyuan/motion-web/tree/main/cases/lyre-crows" target="_blank" rel="noopener">cases/lyre-crows</a>
+      <span style="color:var(--ink-3)">原参考：motion-test demo 02（React 画廊）</span>
+    </div>
+  </section>
+
+
+  <section class="stagewrap">
+    <div class="stagebar">
+      <span class="lbl">case 02 · lyre-crows · 9 strings</span>
+      <div class="readout"><b id="r2a">CROWS IDLE</b><span class="sep">·</span><span>空中词数 <b id="r2b">0</b></span><span class="sep">·</span><span>已被吞下 <b id="r2c">0</b></span></div>
+    </div>
+    <div class="canvasbox" style="background:#d6c8b3"><canvas id="c2" width="960" height="470"></canvas></div>
+    <div class="ctrls">
+      <button class="btn sm" id="b2strum">扫一下弦</button>
+      <button class="btn sm ghost" id="b2word">掉一个词</button>
+      <span class="hint" style="margin:0">在弦上横向拖动 = 拨弦；词泡飘起来后，三只乌鸦会自己抢。</span>
+    </div>
+    <p class="hint">这一页没有时间轴：词是被拨出来的，乌鸦是被词吸引的，尾巴是被吃到的词改写的。</p>
+  </section>
+
+
+
+  <section class="prompt">
+    <div class="prompt-h">
+      <h2>生成提示词</h2>
+      <span class="pill">参考项目 + 变更要求 → 一键复制</span>
+    </div>
+    <div class="prompt-body">
+      <div class="pcol">
+        <h3>01 · 参考项目</h3>
+        <div class="kv">
+          <div><span class="k">项目</span><span class="v">feitangyuan/motion-web（CC BY-NC 4.0）</span></div>
+          <div><span class="k">案例</span><span class="v">cases/lyre-crows · Canvas 2D + rAF</span></div>
+          <div><span class="k">机制</span><span class="v">字符串节点做弹簧摆动；拨弦 → 生成一个词泡向上飘；三只乌鸦各自寻最近词泡，命中后把自己的尾巴字母重写为该词。</span></div>
+          <div><span class="k">关键参数</span><span class="v">纸 #d6c8b3 · 墨 #1e293b · 朱红 #b91c1c · 词泡寿命 ~7s · 乌鸦转向半径 22px</span></div>
+          <div><span class="k">判据</span><span class="v">拨弦后必须真的出现词泡；乌鸦必须奔向最近的词而非固定路径；被吃掉的词必须改写尾部</span></div>
+        </div>
+      </div>
+      <div class="pcol">
+        <h3>02 · 变更要求（可勾选 / 可自写）</h3>
+        <div class="reqs"><label class="req"><input type="checkbox" data-req="换掉整套配色与文案，只保留机制（改成我自己的品牌色）"><span>换掉整套配色与文案，只保留机制（改成我自己的品牌色）</span></label><label class="req"><input type="checkbox" data-req="改成移动端优先：全部交互换成单指手势，去掉悬停依赖"><span>改成移动端优先：全部交互换成单指手势，去掉悬停依赖</span></label><label class="req"><input type="checkbox" data-req="性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半"><span>性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半</span></label><label class="req"><input type="checkbox" data-req="零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图"><span>零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图</span></label><label class="req"><input type="checkbox" data-req="补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动"><span>补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动</span></label><label class="req"><input type="checkbox" data-req="改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏"><span>改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏</span></label></div>
+        <div style="margin-top:12px">
+          <textarea class="custom" id="promptCustom" placeholder="再补一句你的要求，例如：换成中秋主题、卡片文案改成订单数据……"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="prompt-foot">
+      <div class="prompt-out">
+        <pre class="pcode" id="promptBase">做一个单文件 HTML（Canvas 2D + rAF，无框架无 CDN），复刻 motion-web 的 lyre-crows 案例的"因果生态"交手感。
+
+【机制要求】
+1) 9 根竖向弦，每根 14 个节点，用质点 + 距离约束做摆动；被拨后要有可见的余振，并缓慢回到直线。
+2) 指针在某根弦附近横向拖动即视为拨弦；拨弦的唯一结果是"震落一个词"——不要给拨弦加任何别的反馈。
+3) 落下的词是一个会向上飘、带轻微横向漂移、约 7 秒后自然消失的"词泡"。
+4) 3 只乌鸦没有固定航线：每帧各自寻找最近的词泡并转向它（转向用加速度而非直接设速度），同时保持彼此不重叠。
+5) 任意一只乌鸦碰到词泡的瞬间：词泡消失，这只乌鸦的"尾巴"变成该词的字母序列（最多 8 个字母），并在它身后逐字绘制出来。
+6) 页面不能有计时器驱动的编排动画；所有可见事件都必须由上一步行为产生。
+7) DOM 里要有实时读数（空中词数 / 已吞下数量），供读屏与自动化验证读取。
+
+【视觉参数】纸底 #d6c8b3 · 墨 #1e293b · 朱红 #b91c1c · 两枚半透明水彩圆（暖陶土 + 鼠尾草）· 标题用衬线斜体 · 细节文字用等宽 10–11px。
+
+【自检标准】
+- 拨弦后 1 秒内必须出现词泡（不能只抖一下弦）；
+- 乌鸦必须真的追最近的词，把词移到别处时它们要改向；
+- 被吃掉的词必须体现在乌鸦尾巴上，而不只是消失。
+
+【风格】茶渍纸 + 单一朱红强调色；朱红只用于"你能操纵的东西"和"你操纵产生的东西"，它是图例而不是装饰。输出完整 HTML。</pre>
+        <pre class="pcode" id="promptOut" style="display:none"></pre>
+        <div style="display:none" id="promptDummy"></div>
+      </div>
+      <div class="copybar">
+        <button class="copy-main" id="copyPrompt">一键复制提示词</button>
+        <span class="copy-tip">复制后直接贴给 AI 编码工具即可生成同款项目</span>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="notes2">
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--teal)"></span>可以照搬（机制层）</h3>
+      <ul><li><div><b>因果链代替时间线</b>：事件 A 产生对象，对象吸引主体，主体改变自身状态。</div></li><li><div><b>转向用加速度</b>：乌鸦不能被直接设速度，否则会瞬间贴脸、失去生命感。</div></li><li><div><b>种子化纹理</b>：纤维点用 sin(i*713.82) 生成，别用 Math.random()，否则 60fps 下背景会像电视雪花。</div></li><li><div><b>单一强调色当图例</b>：所有红色 = 你能拨的 + 你拨出来的。</div></li></ul>
+    </div>
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--red)"></span>不许照搬（皮层）</h3>
+      <ul><li><div><b>茶渍纸 + 朱红的这套配色</b>：可迁移的是「一个强调色只用于可交互物」。</div></li><li><div><b>具体词表</b>：任何词都成立。</div></li><li><div><b>九根弦 / 三只乌鸦</b>：是按画面比例定的，换成 5 根 / 2 只也成立。</div></li></ul>
+    </div>
+  </section>
+
+  <nav class="pager"><a href="m01-char-curtain.html"><div class="k">← 上一个</div><div class="t">01 字符幕布</div></a><a class="next" href="m03-string-clock.html"><div class="k">下一个 →</div><div class="t">03 弹性指针时钟</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：演示是按 motion-web 案例公开的机制与实测参数做的原生复现（Canvas 2D / CSS / DOM，无框架无 CDN），用于投屏讲解；视觉细节经简化，不是原案例代码。<br>
+    <b>提示词</b>：勾选「变更要求」会自动拼进下方 prompt，可直接复制给任意 AI 编码工具。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2200);
+  };
+
+  /* 提示词面板：勾选/输入 → 实时重写 prompt → 一键复制 */
+  var base = document.getElementById('promptBase').textContent;
+  var out  = document.getElementById('promptOut');
+  var boxes= document.querySelectorAll('.req input');
+  var custom=document.getElementById('promptCustom');
+  function build(){
+    var lines=[base.trim()];
+    var picked=[];
+    boxes.forEach(function(b){ if(b.checked) picked.push('- '+b.dataset.req); });
+    if(picked.length) lines.push('\n【变更要求】\n'+picked.join('\n'));
+    if(custom.value.trim()) lines.push('\n【自定义要求】\n'+custom.value.trim());
+    out.textContent=lines.join('\n');
+  }
+  boxes.forEach(function(b){ b.addEventListener('change',build); });
+  custom.addEventListener('input',build);
+  build();
+  document.getElementById('copyPrompt').addEventListener('click',function(){
+    var text=out.textContent, btn2=this;
+    function done(){ btn2.classList.add('done'); var o=btn2.textContent; btn2.textContent='已复制 ✓';
+      setTimeout(function(){ btn2.classList.remove('done'); btn2.textContent=o; },1800); }
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ toast('请手动选择文本复制'); }
+      document.body.removeChild(ta);
+    }
+    if(window.AndroidBridge&&window.AndroidBridge.copy){ try{ window.AndroidBridge.copy(text); done(); return; }catch(e){} }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(fallback); }
+    else { fallback(); }
+  });
+})();
+</script>
+<script>
+
+(function(){
+  var cv=document.getElementById('c2'), ctx=cv.getContext('2d');
+  var W=960,H=470;
+  var WORDS=['ETERNAL','SUMMER','COMPARE','THEE','MIRTH','LIGHT','GRIEF','BLOOM','HOURS','ASHES'];
+  var INK='#1e293b', RED='#b91c1c';
+
+  var strings=[];
+  for(var i=0;i<9;i++){
+    var x=330+i*40, pts=[];
+    for(var j=0;j<=14;j++) pts.push({x:x,y:110+j*14,ox:x,oy:110+j*14});
+    strings.push({x:x,pts:pts,pluck:0});
+  }
+  var bubbles=[], crows=[], caught=0;
+  var wordsAloftEl=document.getElementById('r2b'), caughtEl=document.getElementById('r2c'), stateEl=document.getElementById('r2a');
+
+  function newCrow(x,y,seed){
+    return {x:x,y:y,vx:0,vy:0,tail:'CAW'.slice(0,3).split(''),phase:seed,mode:'idle'};
+  }
+  crows=[newCrow(380,120,0.3),newCrow(560,90,1.7),newCrow(680,150,3.1)];
+
+  function spawnWord(x){
+    var t=WORDS[Math.floor(Math.random()*WORDS.length)];
+    bubbles.push({text:t,x:x,y:300,vy:-0.28- Math.random()*0.2,vx:(Math.random()-0.5)*0.5,life:7,age:0});
+  }
+  function strum(x){
+    var best=null,bd=1e9;
+    strings.forEach(function(s){ var d=Math.abs(s.x-x); if(d<bd){bd=d;best=s;} });
+    if(!best||bd>60) best=strings[2+Math.floor(Math.random()*5)];
+    for(var j=1;j<best.pts.length;j++){ best.pts[j].ox-=8; }
+    spawnWord(best.x+ (Math.random()-0.5)*30);
+  }
+  document.getElementById('b2strum').addEventListener('click',function(){ strum(400+Math.random()*200); });
+  document.getElementById('b2word').addEventListener('click',function(){ spawnWord(500+Math.random()*160); });
+
+  var dragging=false, lastX=0;
+  function pos(e){ var r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*(W/r.width),y:(e.clientY-r.top)*(H/r.height)}; }
+  cv.addEventListener('pointerdown',function(e){ dragging=true; lastX=pos(e).x; });
+  cv.addEventListener('pointermove',function(e){
+    if(!dragging) return;
+    var p=pos(e);
+    if(Math.abs(p.x-lastX)>18){ strum(p.x); lastX=p.x; }
+  });
+  window.addEventListener('pointerup',function(){ dragging=false; });
+
+  function step(){
+    /* strings */
+    strings.forEach(function(s){
+      var pts=s.pts;
+      for(var j=1;j<pts.length;j++){
+        var n=pts[j];
+        var vx=(n.x-n.ox)*0.96, vy=(n.y-n.oy)*0.96;
+        n.ox=n.x; n.oy=n.y;
+        n.x+=vx; n.y+=vy+0.16;
+        n.x+=(s.x-n.x)*0.012;
+      }
+      for(var k=0;k<3;k++){
+        for(var j2=0;j2<pts.length-1;j2++){
+          var a=pts[j2],b=pts[j2+1];
+          var dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||0.001;
+          var diff=(d-14)/d*0.5;
+          if(j2>0){ a.x+=dx*diff;a.y+=dy*diff; }
+          b.x-=dx*diff;b.y-=dy*diff;
+        }
+      }
+      pts[0].x=s.x; pts[0].y=110;
+    });
+
+    /* bubbles */
+    for(var i=bubbles.length-1;i>=0;i--){
+      var w=bubbles[i];
+      w.age+=1/60; w.y+=w.vy; w.x+=w.vx;
+      w.vx+=Math.sin(w.age*2+i)*0.004;
+      if(w.age>w.life||w.y<90) bubbles.splice(i,1);
+    }
+
+    /* crows */
+    crows.forEach(function(c){
+      var target=null,bd=1e9;
+      bubbles.forEach(function(w){ var d=Math.hypot(w.x-c.x,w.y-c.y); if(d<bd){bd=d;target=w;} });
+      if(target){
+        c.mode='hunt';
+        var dx=target.x-c.x, dy=target.y-c.y, d=Math.hypot(dx,dy)||1;
+        c.vx+=(dx/d)*0.13; c.vy+=(dy/d)*0.13;
+        if(d<20){
+          c.tail=target.text.split('').slice(0,8);
+          bubbles.splice(bubbles.indexOf(target),1);
+          caught++; caughtEl.textContent=caught;
+          toast('一只乌鸦把尾巴改写成了「'+target.text+'」');
+        }
+      } else {
+        c.mode='idle';
+        c.vx+=Math.sin(performance.now()/1400+c.phase)*0.05;
+        c.vy+=Math.cos(performance.now()/1700+c.phase)*0.04;
+        c.vy+=(120-c.y)*0.001;
+      }
+      c.vx*=0.955; c.vy*=0.955;
+      c.x+=c.vx; c.y+=c.vy;
+      c.x=Math.max(60,Math.min(W-60,c.x));
+      c.y=Math.max(50,Math.min(H-140,c.y));
+    });
+    wordsAloftEl.textContent=bubbles.length;
+    stateEl.textContent=bubbles.length? 'CROWS HUNTING':'CROWS IDLE';
+  }
+
+  function crow(x,y,vx,vy,tail){
+    var ang=Math.atan2(vy,vx);
+    ctx.save(); ctx.translate(x,y); ctx.rotate(ang); ctx.scale(1.75,1.75);
+    ctx.fillStyle=INK;
+    /* 俯视剪影：两翼 + 尾 */
+    ctx.beginPath();
+    ctx.moveTo(0,-3.2);
+    ctx.quadraticCurveTo(-8,-9,-16,-4.4);
+    ctx.quadraticCurveTo(-8,-1.6,0,2.2);
+    ctx.quadraticCurveTo(8,-1.6,16,-4.4);
+    ctx.quadraticCurveTo(8,-9,0,-3.2);
+    ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-1,2); ctx.lineTo(0,10); ctx.lineTo(2.4,2); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle=RED; ctx.font='italic 700 12px Georgia, serif'; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+    for(var i=0;i<tail.length;i++){
+      ctx.fillText(tail[i], x-20-i*9, y+30+i*2.8);
+    }
+  }
+
+  function draw(){
+    ctx.fillStyle='#d6c8b3'; ctx.fillRect(0,0,W,H);
+    /* washes */
+    ctx.globalAlpha=0.5;
+    ctx.fillStyle='rgba(184,115,81,.16)';
+    ctx.beginPath(); ctx.arc(420,230,150,0,7); ctx.fill();
+    ctx.fillStyle='rgba(156,179,168,.18)';
+    ctx.beginPath(); ctx.arc(560,220,140,0,7); ctx.fill();
+    ctx.globalAlpha=1;
+    /* strings */
+    strings.forEach(function(s){
+      ctx.strokeStyle='rgba(185,28,28,.55)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(s.pts[0].x,s.pts[0].y);
+      for(var j=1;j<s.pts.length;j++) ctx.lineTo(s.pts[j].x,s.pts[j].y);
+      ctx.stroke();
+    });
+    /* bubbles */
+    bubbles.forEach(function(w){
+      var a=Math.min(1,(w.life-w.age)/1.2);
+      ctx.globalAlpha=a;
+      ctx.fillStyle='rgba(255,252,247,.72)';
+      ctx.beginPath(); ctx.ellipse(w.x,w.y,Math.max(34,w.text.length*5.2),22,0,0,7); ctx.fill();
+      ctx.fillStyle=RED; ctx.font='italic 700 15px Georgia, serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(w.text,w.x,w.y);
+      ctx.globalAlpha=1;
+    });
+    /* crows */
+    crows.forEach(function(c){ crow(c.x,c.y,c.vx*6,c.vy*6,c.tail); });
+    /* caption */
+    ctx.fillStyle='rgba(30,41,59,.55)'; ctx.font='11px ui-monospace, monospace'; ctx.textAlign='left';
+    ctx.fillText('DRAG ACROSS THE RED STRINGS · '+strings.length+' STRINGS · '+crows.length+' CROWS',36,H-30);
+  }
+  function loop(){ step(); draw(); requestAnimationFrame(loop); }
+  loop();
+})();
+
+</script>
+</body>
+</html>

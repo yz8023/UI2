@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# 构建中间产物（APK 用 CI 或本地 build.sh 重新生成）
+android-src/build/
+apk/*.idsig
+*.log
+.DS_Store
+
+# 本地工具缓存
+.cache/
+.android/
+.playwright-cli/
+.sudo_as_admin_successful

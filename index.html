@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>UI 素材工作区 · 两套形态</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#0b1219;--txt:#e9eff7;--soft:rgba(233,239,247,.62);--dim:rgba(233,239,247,.40);
+  --line:rgba(255,255,255,.13);--blue:#9dccff;--mint:#5fdba8;--violet:#9d8cff;--amber:#ffd28a;
+  --ease:cubic-bezier(.2,.9,.3,1.1);
+}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.6;
+  font-family:'Segoe UI','PingFang SC','HarmonyOS Sans SC','Microsoft YaHei',system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+.aurora{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(72px);opacity:.46;animation:drift 30s linear infinite}
+.blob:nth-child(1){width:56vmax;height:56vmax;top:-16vmax;left:-12vmax;background:radial-gradient(circle,rgba(29,74,115,.95),transparent 70%)}
+.blob:nth-child(2){width:48vmax;height:48vmax;top:-8vmax;right:-16vmax;background:radial-gradient(circle,rgba(88,61,180,.8),transparent 70%);animation-duration:36s;animation-direction:reverse}
+.blob:nth-child(3){width:58vmax;height:58vmax;bottom:-22vmax;left:-8vmax;background:radial-gradient(circle,rgba(23,110,88,.7),transparent 70%);animation-duration:42s}
+@keyframes drift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(4vmax,-3vmax,0) scale(1.12)}}
+.wrap{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:26px 18px 60px}
+.glass{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.022));
+  border:1px solid rgba(255,255,255,.15);box-shadow:0 12px 32px rgba(0,0,0,.34);border-radius:22px;
+  -webkit-backdrop-filter:blur(24px) saturate(1.5) brightness(1.06);backdrop-filter:blur(24px) saturate(1.5) brightness(1.06)}
+h1{font-size:clamp(24px,3.6vw,34px);line-height:1.28;letter-spacing:-.02em;font-weight:700}
+.lede{font-size:13.5px;color:var(--soft);max-width:66ch;margin-top:9px}
+.lede b{color:var(--txt)}
+.forms{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.form{padding:20px;display:flex;flex-direction:column;gap:8px;transition:transform .2s var(--ease),box-shadow .2s}
+.form:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(0,0,0,.5)}
+.form .tag{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+.form h2{font-size:18px}
+.form p{font-size:12.5px;color:var(--soft);line-height:1.7}
+.form .go{margin-top:auto;font-size:12.5px;color:var(--blue);font-weight:600;padding-top:6px}
+.sec{display:flex;align-items:center;gap:8px;margin:30px 2px 12px;font-size:12px;font-weight:600;
+  color:var(--soft);letter-spacing:.06em}
+.sec::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--blue);box-shadow:0 0 14px var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead th{text-align:left;font-size:11px;font-weight:600;color:var(--dim);padding:10px 12px;border-bottom:1px solid var(--line)}
+tbody tr{border-bottom:1px solid rgba(255,255,255,.06)}
+tbody tr:hover{background:rgba(255,255,255,.035)}
+td{padding:11px 12px;vertical-align:top;line-height:1.6}
+td.num{font-family:ui-monospace,Menlo,monospace;font-size:10.5px;color:#06121c;background:var(--blue);
+  border-radius:5px;padding:2px 6px;white-space:nowrap}
+td.nm{font-weight:600;white-space:nowrap}
+td.kind{color:var(--dim);white-space:nowrap;font-size:11.5px}
+td.mech{color:var(--soft);font-size:11.8px}
+td.act{white-space:nowrap;text-align:right}
+.apkbox{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;padding:18px}
+.apkbox .icon{width:64px;height:64px;border-radius:16px;background:linear-gradient(150deg,#9dccff,#164a70);
+  display:grid;place-items:center;font-size:26px;color:#06121c;font-weight:700}
+.apkbox h3{font-size:16px;margin-bottom:4px}
+.apkbox .meta{font-size:11.5px;color:var(--dim);margin-bottom:8px}
+.apkbox p{font-size:12.5px;color:var(--soft);line-height:1.75}
+.dl{display:inline-block;margin-top:10px;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:11px;
+  background:#9dccff;color:#06121c}
+.dl:hover{background:#bcdcff}
+.shots{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.shots img{width:180px;border-radius:12px;border:1px solid var(--line);display:block}
+@media (max-width:700px){.apkbox{grid-template-columns:1fr}.shots img{width:44vw}}
+.btn{display:inline-block;font-size:11.5px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);
+  color:var(--soft);margin-left:6px;transition:.18s}
+.btn:hover{color:#fff;background:rgba(157,204,255,.16);border-color:rgba(157,204,255,.45)}
+.btn.p{color:#06121c;background:var(--blue);border-color:transparent;font-weight:600}
+.btn.p:hover{background:#bcdcff;color:#06121c}
+.foot{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);font-size:11.5px;color:var(--dim);line-height:1.85}
+.foot b{color:var(--soft)}
+@media (max-width:820px){
+  .forms{grid-template-columns:1fr}
+  thead{display:none}
+  tbody tr{display:grid;grid-template-columns:1fr;gap:2px;padding:12px 4px}
+  td{border:0;padding:1px 2px}
+  td.act{text-align:left;padding-top:8px}
+  .btn{margin:0 6px 0 0}
+}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob"></div><div class="blob"></div><div class="blob"></div></div>
+<div class="wrap">
+  <h1>同一个素材库，两套形态。</h1>
+  <p class="lede"><b>46 条完整素材 + 22 个案例拆解</b>，从按钮一路做到登录页、设置页、个人主页，覆盖一个 App 需要的每一类界面。
+  每条素材都<b>真的能跑</b>，并配齐<b>实现方案 / 参考来源 / 环境要求 / 一键复制提示词</b>四件套（文档结构移植自 yz8023/ui）。
+  一套是<b>应用形态</b>：搜索、筛选、并排对比；一套是<b>HTML 形态</b>：46 个独立页 + 一张总览。</p>
+
+  <div class="forms">
+    <a class="form glass" href="app/index.html">
+      <div class="tag">form 01</div>
+      <h2>应用形态 · 素材库 App 3.1</h2>
+      <p><b>悬浮 Dock 导航</b>（图标格 + 滑动指示器，近黑中性底，不再用大面积蓝色极光）：首页 / 素材（8 个分类页 + 全局功能搜索 + 68 张实时演示卡）/ 体验（XPopup 20 弹窗 · 20 动画 · 45 设置 · 5 手势 + motion-web 7 个 case 全屏剧场 · 20 配方 · 4 组令牌 · 25 规范）/ 结构（3 平台 × 11 功能 → 目录树 + 素材映射 + 开工提示词，勾选不跳顶）/ 更多（并排对比 + 设置）。点卡片开详情，勾变更要求即可一键复制提示词。</p>
+      <div class="go">打开 App →</div>
+    </a>
+    <a class="form glass" href="library/index.html">
+      <div class="tag">form 02</div>
+      <h2>HTML 形态 · 完整素材库 2.0（46 条）</h2>
+      <p>8 个分类：基础组件 · 表单输入 · 导航 · 布局 · 反馈 · 数据展示 · 动效 · 应用模板。总览页里 46 个演示同时能跑，
+      点开任意一条即是「效果 / 机制 / 判据 / 代码 / 提示词 / 出处」六个面板，每页还带实现方案、参考来源、环境要求。</p>
+      <div class="go">打开完整素材库 →</div>
+    </a>
+  </div>
+
+  <div class="sec">完整素材库 2.0 · 46 条素材 · 8 个分类</div>
+  <div class="glass" style="overflow:hidden;padding:4px 6px">
+    <table>
+      <thead><tr><th>分类</th><th>条数</th><th>覆盖内容</th><th style="text-align:right">功能号</th></tr></thead>
+      <tbody>
+        <tr><td>01 基础组件</td><td>6</td><td>按钮 · 输入框 · 开关 · 滑块 · 勾选与单选 · 头像徽标</td><td style="text-align:right">F01–F06</td></tr>
+        <tr><td>02 表单输入</td><td>6</td><td>校验 · 步进器 · 分段控件 · 搜索 · 上传 · 选择器</td><td style="text-align:right">F07–F12</td></tr>
+        <tr><td>03 导航</td><td>6</td><td>底部标签栏 · 折叠顶栏 · 抽屉 · 面包屑 · 标签页 · 侧边栏</td><td style="text-align:right">F13–F18</td></tr>
+        <tr><td>04 布局</td><td>6</td><td>Bento 网格 · 分组列表 · 瀑布流 · 响应式栅格 · 粘性堆叠 · 安全区</td><td style="text-align:right">F19–F24</td></tr>
+        <tr><td>05 反馈</td><td>7</td><td>Toast · 对话框 · 底部面板 · 骨架屏 · 空状态 · 进度环 · 加载按钮</td><td style="text-align:right">F25–F31</td></tr>
+        <tr><td>06 数据展示</td><td>6</td><td>折线 · 柱状 · 环形 · 数据卡 · 表格 · 时间线</td><td style="text-align:right">F32–F37</td></tr>
+        <tr><td>07 动效</td><td>5</td><td>弹簧拖拽 · 错峰入场 · 手势卡片 · 页面转场 · 滚动视差</td><td style="text-align:right">F38–F42</td></tr>
+        <tr><td>08 应用模板</td><td>4</td><td>引导页 · 登录页 · 设置页 · 个人主页</td><td style="text-align:right">F43–F46</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="sec">22 个案例拆解 · 两套形态任选</div>
+  <div class="glass" style="overflow:hidden;padding:4px 6px">
+    <table>
+      <thead><tr><th>编号</th><th>素材</th><th>类型</th><th>机制</th><th style="text-align:right">打开方式</th></tr></thead>
+      <tbody>
+        <tr><td><span class="num">V01</span></td><td class="nm">弹窗选型</td><td class="kind">视频拆解 · dom + css</td><td class="mech">同一件事按「是否打断、是否可撤销」分三种承载：Toast（不打断、无操作）、Drawer（不打断、可操作）、Modal（打断、必须决策）。</td><td class="act"><a class="btn p" href="app/index.html#v01">在 App 里看</a><a class="btn" href="video-demos/01-弹窗选型.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V02</span></td><td class="nm">6 种高级浮层</td><td class="kind">视频拆解 · dom + css</td><td class="mech">把「浮层」拆成 6 种语义：Popover（锚定、非模态）、Tooltip（只解释）、Sheet（底部可拖）、Dialog（必须决策）、Menu（命令集）、Lightbox（看大图）。</td><td class="act"><a class="btn p" href="app/index.html#v02">在 App 里看</a><a class="btn" href="video-demos/02-6-种高级浮层.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V03</span></td><td class="nm">大厂质感 5 招</td><td class="kind">视频拆解 · dom + css</td><td class="mech">质感不是滤镜，是 5 个可枚举的细节：分层阴影、内高光描边、统一圆角、留白节奏、低对比渐变。</td><td class="act"><a class="btn p" href="app/index.html#v03">在 App 里看</a><a class="btn" href="video-demos/03-大厂质感-5-招.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V04</span></td><td class="nm">AI 界面 5 细节</td><td class="kind">视频拆解 · dom + css</td><td class="mech">流式输出 + 可打断 + 复制/重试 + 状态可读 + 失败可恢复：AI 界面的体验差异全在这 5 个状态机里。</td><td class="act"><a class="btn p" href="app/index.html#v04">在 App 里看</a><a class="btn" href="video-demos/04-AI-界面-5-细节.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V05</span></td><td class="nm">下拉 vs 选择器</td><td class="kind">视频拆解 · dom + css</td><td class="mech">Dropdown 是「命令菜单」，点一项立刻执行，按钮文字不变；Select 是「取值控件」，点一项回填数值，不执行动作。</td><td class="act"><a class="btn p" href="app/index.html#v05">在 App 里看</a><a class="btn" href="video-demos/05-下拉-vs-选择器.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V06</span></td><td class="nm">热区与误触</td><td class="kind">视频拆解 · dom + css</td><td class="mech">视觉尺寸 ≠ 命中尺寸：32px 视觉按钮要给 44–56px 命中半径，用透明外扩热区实现，而不是把按钮画大。</td><td class="act"><a class="btn p" href="app/index.html#v06">在 App 里看</a><a class="btn" href="video-demos/06-热区与误触.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V07</span></td><td class="nm">全球化布局</td><td class="kind">视频拆解 · dom + css</td><td class="mech">不同语言字宽差异可达 2–3 倍：定宽按钮必然截断/溢出，正确做法是自适应宽度 + 省略号 + 可换行 + 允许容器拉伸。</td><td class="act"><a class="btn p" href="app/index.html#v07">在 App 里看</a><a class="btn" href="video-demos/07-全球化布局.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V08</span></td><td class="nm">虎先锋 · 无伤实录</td><td class="kind">视频拆解 · dom + css</td><td class="mech">低帧率下的「丝滑」来自：稳定的帧时间曲线 + 明确的闪避窗口（约 320–700ms）+ 命中反馈与镜头反馈对齐。</td><td class="act"><a class="btn p" href="app/index.html#v08">在 App 里看</a><a class="btn" href="video-demos/08-虎先锋-·-无伤实录.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">V09</span></td><td class="nm">寅虎 · 无伤实录</td><td class="kind">视频拆解 · dom + css</td><td class="mech">节拍类手感的三个参数：周期（620ms）、判定窗口（PERFECT ±70ms / GOOD ±140ms）、反馈层级（字 + 颜色 + 缩放）。</td><td class="act"><a class="btn p" href="app/index.html#v09">在 App 里看</a><a class="btn" href="video-demos/09-寅虎-·-无伤实录.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M01</span></td><td class="nm">字符幕布</td><td class="kind">动效复刻 · dom</td><td class="mech">24 列 × 16 行的 Verlet 质点，只有竖向约束（横向 0 连接），5 次约束求解；指针推力半径 75px，顶行以 0.35 的弹簧系数挂回原点。</td><td class="act"><a class="btn p" href="app/index.html#m01">在 App 里看</a><a class="btn" href="motion-demos/m01-char-curtain.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M02</span></td><td class="nm">竖琴与乌鸦</td><td class="kind">动效复刻 · dom</td><td class="mech">字符串节点做弹簧摆动；拨弦 → 生成一个词泡向上飘；三只乌鸦各自寻最近词泡，命中后把自己的尾巴字母重写为该词。</td><td class="act"><a class="btn p" href="app/index.html#m02">在 App 里看</a><a class="btn" href="motion-demos/m02-lyre-crows.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M03</span></td><td class="nm">弹性指针时钟</td><td class="kind">动效复刻 · dom</td><td class="mech">每根指针是一条 24 节的链，链节按「前一点 + 固定段长指向真角度」逐级跟随，形成松弛弹簧感；指针可抓取。</td><td class="act"><a class="btn p" href="app/index.html#m03">在 App 里看</a><a class="btn" href="motion-demos/m03-string-clock.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M04</span></td><td class="nm">粘性堆叠</td><td class="kind">动效复刻 · dom</td><td class="mech">原生滚动 + 每屏 position: sticky; top:0；用滚动位置反算每一屏的进度，驱动文字擦除（clip-path）与封面缩放。</td><td class="act"><a class="btn p" href="app/index.html#m04">在 App 里看</a><a class="btn" href="motion-demos/m04-press-stack.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M05</span></td><td class="nm">滚轮轨道</td><td class="kind">动效复刻 · dom</td><td class="mech">滚轮 preventDefault 后累加进 target，轨道用 1−exp(−k·dt) 缓动；三层视差各不同幅度；每个词的低位升起由轨道进度驱动；雷达扫描用独立时钟 3.95s/圈。</td><td class="act"><a class="btn p" href="app/index.html#m05">在 App 里看</a><a class="btn" href="motion-demos/m05-wheel-rail.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M06</span></td><td class="nm">翻页动画玩具</td><td class="kind">动效复刻 · dom</td><td class="mech">指针/滚轮产生角速度 → 角度积分 → 按 12Hz 停格时钟量化成 4 个姿态硬切；|ω| 超过阈值时桌面玩具被踢飞，落地做 squash 且冲击量衰减 ~10 帧。</td><td class="act"><a class="btn p" href="app/index.html#m06">在 App 里看</a><a class="btn" href="motion-demos/m06-toy-flipbook.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">M07</span></td><td class="nm">手绘 3D</td><td class="kind">动效复刻 · dom</td><td class="mech">胶囊骨架投影 → 外扩描边 + 白色回填吃掉内部接缝（近似深度断点描边）→ 11Hz boil 抖动 → 二值调色板 + 颗粒。</td><td class="act"><a class="btn p" href="app/index.html#m07">在 App 里看</a><a class="btn" href="motion-demos/m07-ink-crowd.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">L01</span></td><td class="nm">折射与色散</td><td class="kind">液态玻璃 · webgl2</td><td class="mech">SDF → 法线 → 边缘因子 edge = −tan(θT−θI) → 沿法线偏移采样模糊背景；R/G/B 用 N=0.98/1.0/1.02 分别采样，产生色散。</td><td class="act"><a class="btn p" href="app/index.html#l01">在 App 里看</a><a class="btn" href="glass-demos/l01-refraction.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">L02</span></td><td class="nm">菲涅尔与高光</td><td class="kind">液态玻璃 · webgl2</td><td class="mech">菲涅尔：pow(1 − nd/range + hardness, 5) × 强度；眩光：法线与光源方向的点积 → 幂次收敛 → 乘边缘带遮罩。</td><td class="act"><a class="btn p" href="app/index.html#l02">在 App 里看</a><a class="btn" href="glass-demos/l02-fresnel-glare.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">L03</span></td><td class="nm">超椭圆与 Blob 融合</td><td class="kind">液态玻璃 · webgl2</td><td class="mech">角部 SDF = pow(pow(|x|,n)+pow(|y|,n),1/n) − r；两块形状用 smin(a,b,k) 融合，k = merge × 260px。</td><td class="act"><a class="btn p" href="app/index.html#l03">在 App 里看</a><a class="btn" href="glass-demos/l03-superellipse-blob.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">L04</span></td><td class="nm">模糊管线与阴影</td><td class="kind">液态玻璃 · webgl2</td><td class="mech">模糊半径 r → sigma = r/3 → 取 ±15 个偏移（共 31 个）按高斯权重加权；纵向输出传给横向，横向输出给主合成。</td><td class="act"><a class="btn p" href="app/index.html#l04">在 App 里看</a><a class="btn" href="glass-demos/l04-blur-pipeline.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">L05</span></td><td class="nm">弹簧跟随</td><td class="kind">液态玻璃 · webgl2</td><td class="mech">目标值 = 指针位置；每帧 v += (target−x)·k·dt，v *= damping，x += v。k/damping 决定软硬，velocity 同时用来驱动尺寸挤压。</td><td class="act"><a class="btn p" href="app/index.html#l05">在 App 里看</a><a class="btn" href="glass-demos/l05-spring-follow.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+        <tr><td><span class="num">L06</span></td><td class="nm">渲染步骤查看</td><td class="kind">液态玻璃 · webgl2</td><td class="mech">同一套 4-pass 管线，每个 pass 结束后把中间纹理按 debug 值直接输出到屏幕；主合成 pass 用 uniform 选择输出哪一项中间量。</td><td class="act"><a class="btn p" href="app/index.html#l06">在 App 里看</a><a class="btn" href="glass-demos/l06-render-steps.html" target="_blank" rel="noopener">HTML 演示页 ↗</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="foot">
+    <b>许可证</b>：完整素材库的文档结构与视觉语言移植自 <a href="https://github.com/yz8023/ui" style="color:#8fbfff">yz8023/ui</a>（MIT）；
+    动效部分参考 feitangyuan/motion-web（CC BY-NC 4.0，禁止商用）；液态玻璃部分参考 iyinchao/liquid-glass-studio（MIT）；视频拆解部分为公开视频要点还原。
+    所有演示均为按机制重新实现的代码，未拷贝原项目素材；玻璃背景由着色器程序化生成。<br>
+    <b>离线</b>：全部单文件内联，无 CDN、无外部图片字体，拖进浏览器即可打开。
+  </div>
+</div>
+</body>
+</html>

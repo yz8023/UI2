@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>为什么你总是点不中那个按钮 · 对比演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+.grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+.hit{position:relative;display:grid;place-items:center;border-radius:10px;min-height:54px;cursor:crosshair;
+  transition:background .18s var(--ease)}
+.hit .ico{width:16px;height:16px;border-radius:4px;background:var(--ink-3);display:block;position:relative;z-index:2}
+.small .hit{background:transparent}
+.big .hit{background:transparent}
+.stage.showzone .small .hit::before{content:"";position:absolute;width:24px;height:24px;border-radius:7px;
+  background:var(--red-2);box-shadow:inset 0 0 0 1px var(--red-3)}
+.stage.showzone .big .hit::before{content:"";position:absolute;width:44px;height:44px;border-radius:11px;
+  background:var(--teal-2);box-shadow:inset 0 0 0 1px var(--teal-3)}
+.hit.miss{background:var(--red-2)}
+.hit.hitmark{background:var(--teal-2)}
+.btnpair{display:flex;border-radius:11px;overflow:hidden}
+.btnpair button{flex:1;padding:12px;font-size:13px;background:var(--card);color:var(--ink)}
+.btnpair button.del{color:var(--red)}
+.btnpair.tight button+button{border-left:0}
+.btnpair.loose{gap:8px}
+.btnpair.loose button{border-radius:10px;box-shadow:inset 0 0 0 1px var(--line-2)}
+.btnpair.tight button{box-shadow:inset 0 0 0 1px var(--line-2)}
+.strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:thin}
+.scard{flex:0 0 150px;background:var(--card);border-radius:12px;padding:12px;box-shadow:inset 0 0 0 1px var(--line);
+  display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--ink-3)}
+.scard b{font-size:13px;color:var(--ink)}
+.fav{align-self:flex-start;font-size:12px;padding:5px 9px;border-radius:8px;background:var(--card-2);color:var(--ink-2)}
+.fav.on{background:var(--red-2);color:var(--red)}
+.hapticbtn{padding:14px 22px;border-radius:14px;background:var(--teal);color:#fff;font-size:13.5px;
+  box-shadow:0 8px 22px var(--teal-2);transition:transform .12s var(--ease)}
+[data-theme="dark"] .hapticbtn{color:#06211d}
+.hapticbtn.pulse{animation:pulse .32s var(--spring)}
+@keyframes pulse{0%{transform:scale(1)}45%{transform:scale(.94)}100%{transform:scale(1)}}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部视频
+    </a>
+    <div class="tb-title">06 · <b>热区与误触</b></div>
+    <div class="tb-right">
+      <span class="pill">02:26</span>
+      <a class="pill" href="https://www.bilibili.com/video/BV139xT66Eyj" target="_blank" rel="noopener" style="text-decoration:none">原视频 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">Bilibili · KD一对A · 触控体验 · 热区</div>
+    <h1 class="title">为什么你总是点不中那个按钮</h1>
+    <p class="lede">图标画得多精致，热区就跟着缩多小——这是最容易翻车的地方。这一页让你用鼠标亲手体验一次「点不中」，再看三招怎么救。</p>
+    <div class="metas">
+      <span class="pill v">热区 / Fitts</span>
+      <span class="pill t">误触 / 触感反馈</span>
+      <span class="pill">2026-10-27</span>
+    </div>
+    <div class="quote">「视觉 16，热区从 40 起、最小 28；两个热区之间必须留缝，可滑动区旁边留 20dp。」</div>
+  </section>
+
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 01</span>
+      <div><h2>命中测试：同样 16px 的图标，热区差一倍</h2>
+      <p>两边各点 8 个点，看你能漏多少次。可以打开「显示热区」看清楚差别。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 热区 = 图标大小</span><span class="count" id="hitA">命中 0 / 0</span></div>
+        <div class="stage" style="align-items:stretch">
+          <div class="grid8 small" id="gridA"></div>
+        </div>
+        <p class="note" id="noteA">鼠标稍微抖一下就打空——手指只会更糟。</p>
+      </div>
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 热区 44px</span><span class="count" id="hitB">命中 0 / 0</span></div>
+        <div class="stage" style="align-items:stretch">
+          <div class="grid8 big" id="gridB"></div>
+        </div>
+        <p class="note" id="noteB">图标还是 16px，但可点区域扩大到 44px，几乎不会失手。</p>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="switch" id="showArea" role="switch" aria-checked="true"><span class="track"><span class="knob"></span></span>显示热区</label>
+      <button class="btn sm ghost" id="resetHit">重来</button>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 02</span>
+      <div><h2>两个热区挨在一起，等于开了一个隧道</h2>
+      <p>两边都想点「编辑」，看误触发生在哪里。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 热区紧贴</span><span class="count" id="gapA">误触 0 次</span></div>
+        <div class="stage">
+          <div class="btnpair tight">
+            <button data-b="编辑">编辑</button><button data-b="删除" class="del">删除</button>
+          </div>
+        </div>
+        <p class="note">两片可点区域直接相接，手指落在缝上就会被判给错误的那一个。</p>
+      </div>
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 中间留 8px 缝</span><span class="count" id="gapB">误触 0 次</span></div>
+        <div class="stage">
+          <div class="btnpair loose">
+            <button data-b="编辑">编辑</button><button data-b="删除" class="del">删除</button>
+          </div>
+        </div>
+        <p class="note">缝里点到就什么都不会发生，比点错安全得多。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 03</span>
+      <div><h2>滑动区会偷走点击</h2>
+      <p>在卡片上按住横拖。左边的「收藏」会被滑动手势误触发，右边加了位移阈值。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane bad">
+        <div class="pane-h"><span class="tag no">✕ 不判断位移</span><span class="count" id="swipeA">误收藏 0 次</span></div>
+        <div class="stage" style="overflow:hidden">
+          <div class="strip" id="stripA">
+            <div class="scard"><b>旅行灵感</b><span>12 张图</span><button class="fav" data-fav="A">♡ 收藏</button></div>
+            <div class="scard"><b>周末露营</b><span>8 张图</span><button class="fav" data-fav="A">♡ 收藏</button></div>
+          </div>
+        </div>
+        <p class="note">手指从按钮上起势去滑，松手时 click 照样会来一下。</p>
+      </div>
+      <div class="pane good">
+        <div class="pane-h"><span class="tag ok">✓ 位移 &gt; 8px 就取消</span><span class="count" id="swipeB">误收藏 0 次</span></div>
+        <div class="stage" style="overflow:hidden">
+          <div class="strip" id="stripB">
+            <div class="scard"><b>旅行灵感</b><span>12 张图</span><button class="fav" data-fav="B">♡ 收藏</button></div>
+            <div class="scard"><b>周末露营</b><span>8 张图</span><button class="fav" data-fav="B">♡ 收藏</button></div>
+          </div>
+        </div>
+        <p class="note">只有「按下 → 松开」几乎没移动时才算一次点击，滑动就纯粹是滑动。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示 04</span>
+      <div><h2>看不见的反馈：让手指知道「点到了」</h2>
+      <p>手指盖住按钮时，视觉反馈是看不见的，只能靠触感。</p></div>
+    </div>
+    <div class="pane">
+      <div class="stage" style="align-items:center">
+        <button class="hapticbtn" id="hapBtn">点我试试（支持时会有震动）</button>
+        <p class="count" id="hapText">视觉脉冲 + navigator.vibrate(12)</p>
+      </div>
+      <p class="note">iOS 用 Taptic Engine，安卓用 vibrate；只给 10~15ms，别做成嗡嗡长震。</p>
+    </div>
+  </section>
+
+
+  <section class="notes">
+    <h2>这期视频的要点</h2>
+    <ul class="nlist"><li><div><b>视觉 16，热区 40 起</b>：图标可以画得很小，可点区域至少要 40px，底线 28px。</div></li><li><div><b>热区之间留缝</b>：两片可点区域紧贴，等于给误触开了一条隧道。</div></li><li><div><b>滑动区旁边留 20dp</b>：别让横滑手势偷走点击，用位移阈值判断是滑还是点。</div></li><li><div><b>手指会挡住画面</b>：看不见视觉反馈时，靠 10~15ms 的触感告诉用户「点到了」。</div></li><li><div><b>Fitts 定律</b>：目标越大、距离越近，命中越快；把高频操作放在拇指自然落点。</div></li></ul>
+  </section>
+
+  <nav class="pager"><a href="05-下拉-vs-选择器.html"><div class="k">← 上一个</div><div class="t">05 下拉 vs 选择器</div></a><a class="next" href="07-全球化布局.html"><div class="k">下一个 →</div><div class="t">07 全球化布局</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：对比演示是按视频公开的要点做的交互还原，用于投屏讲解；组件形态与视频中演示的一致，但画面不是视频原片截图。<br>
+    <b>技术</b>：单文件 HTML，零外部依赖，可离线打开；所有页面统一套用同一段 CSS Reset。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2400);
+  };
+})();
+</script>
+<script>
+
+(function(){
+  /* 01 命中测试 */
+  function build(id, small){
+    var g=document.getElementById(id);
+    for(var i=0;i<8;i++){
+      var d=document.createElement('div'); d.className='hit';
+      d.innerHTML='<span class="ico"></span>';
+      if(small){ d.style.cursor='crosshair'; }
+      g.appendChild(d);
+    }
+  }
+  build('gridA',true); build('gridB',false);
+  var stat={A:{hit:0,total:0},B:{hit:0,total:0}};
+  function render(){
+    document.getElementById('hitA').textContent='命中 '+stat.A.hit+' / '+stat.A.total;
+    document.getElementById('hitB').textContent='命中 '+stat.B.hit+' / '+stat.B.total;
+    document.getElementById('noteA').textContent = stat.A.total? ('24px 热区：'+(stat.A.total-stat.A.hit)+' 次打空，手指只会更糟。') : '鼠标稍微抖一下就打空——手指只会更糟。';
+    document.getElementById('noteB').textContent = stat.B.total? ('44px 热区：'+(stat.B.total-stat.B.hit)+' 次打空。') : '图标还是 16px，但可点区域扩大到 44px。';
+  }
+  function bindGrid(id,key){
+    var g=document.getElementById(id);
+    g.addEventListener('click',function(e){
+      var hitEl=e.target.closest('.hit');
+      stat[key].total++;
+      if(hitEl){ stat[key].hit++; hitEl.classList.add('hitmark'); setTimeout(function(){hitEl.classList.remove('hitmark');},260); }
+      else { var stage=g.closest('.stage'); stage.classList.add('flash');
+        setTimeout(function(){stage.classList.remove('flash');},260); }
+      render();
+    });
+    g.addEventListener('mousedown',function(e){ /* 记录一次「尝试」*/ });
+  }
+  bindGrid('gridA','A'); bindGrid('gridB','B');
+  var show=document.getElementById('showArea');
+  function syncZone(){
+    document.querySelectorAll('.stage').forEach(function(s){});
+    var on=show.getAttribute('aria-checked')==='true';
+    document.getElementById('gridA').closest('.stage').classList.toggle('showzone',on);
+    document.getElementById('gridB').closest('.stage').classList.toggle('showzone',on);
+  }
+  show.addEventListener('click',function(){ show.setAttribute('aria-checked', show.getAttribute('aria-checked')==='true'?'false':'true'); syncZone(); });
+  syncZone();
+  document.getElementById('resetHit').addEventListener('click',function(){
+    stat={A:{hit:0,total:0},B:{hit:0,total:0}}; render();
+  });
+  render();
+
+  /* 02 相邻热区 */
+  var gapA=0, gapB=0;
+  document.querySelectorAll('#gapA')&&null;
+  document.querySelectorAll('.btnpair.tight button').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(b.dataset.b==='删除'){ gapA++; document.getElementById('gapA').textContent='误触 '+gapA+' 次'; toast('点到了「删除」——差一点就出事了'); }
+      else toast('编辑');
+    });
+  });
+  document.querySelectorAll('.btnpair.loose button').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(b.dataset.b==='删除'){ gapB++; document.getElementById('gapB').textContent='误触 '+gapB+' 次'; toast('点到了「删除」'); }
+      else toast('编辑');
+    });
+  });
+
+  /* 03 滑动偷点击 */
+  function bindStrip(id,key){
+    var strip=document.getElementById(id), moved=false, sx=0;
+    strip.addEventListener('mousedown',function(e){ moved=false; sx=e.clientX; });
+    strip.addEventListener('mousemove',function(e){ if(Math.abs(e.clientX-sx)>8) moved=true; });
+    strip.addEventListener('click',function(e){
+      var fav=e.target.closest('.fav'); if(!fav) return;
+      if(key==='B' && moved){ e.stopPropagation(); return; }
+      fav.classList.toggle('on');
+      if(key==='A' && moved){
+        document.getElementById('swipeA').textContent='误收藏 '+((parseInt(document.getElementById('swipeA').textContent.replace(/\D/g,''))||0)+1)+' 次';
+        toast('滑动结束时误触了收藏');
+      }
+    },true);
+  }
+  bindStrip('stripA','A'); bindStrip('stripB','B');
+
+  /* 04 触感 */
+  var hb=document.getElementById('hapBtn');
+  hb.addEventListener('click',function(){
+    hb.classList.remove('pulse'); void hb.offsetWidth; hb.classList.add('pulse');
+    if(navigator.vibrate){ navigator.vibrate(12); document.getElementById('hapText').textContent='已触发震动 12ms（你的设备支持）'; }
+    else { document.getElementById('hapText').textContent='你的浏览器不支持震动，仅看视觉脉冲'; }
+    toast('点到啦');
+  });
+})();
+
+</script>
+</body>
+</html>

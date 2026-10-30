@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>寅虎：你礼貌吗？——无伤挑战里的节奏 · 对比演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+.timeline{position:relative;height:56px;border-radius:11px;overflow:hidden;display:flex;
+  box-shadow:inset 0 0 0 1px var(--line);background:var(--card)}
+.tlzone{display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-size:10.5px;color:var(--ink-3);position:relative}
+.tlzone.wind{flex:0 0 40%;background:var(--card-2)}
+.tlzone.hit{flex:0 0 18%;background:var(--red-2);color:var(--red)}
+.tlzone.rec{flex:1;background:var(--teal-2);color:var(--teal)}
+.tlzone+.tlzone{border-left:1px solid var(--line)}
+.playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);left:24%;transition:left .08s linear}
+.playhead::after{content:"";position:absolute;top:-1px;left:-4px;width:10px;height:10px;border-radius:50%;background:var(--ink)}
+.hpips{display:flex;gap:7px}
+.hpips i{width:26px;height:8px;border-radius:99px;background:var(--red);display:block;transition:background .25s var(--ease),transform .25s var(--spring)}
+.hpips i.lost{background:var(--card-3);transform:scaleX(.72)}
+.logstack{font-size:12.5px;color:var(--ink-2);line-height:1.7;background:var(--card);border-radius:10px;
+  padding:10px 12px;box-shadow:inset 0 0 0 1px var(--line);width:100%;min-height:66px}
+.logstack b{color:var(--ink)}
+.logstack .ok{color:var(--teal);font-weight:600}
+.logstack .bad{color:var(--red);font-weight:600}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部视频
+    </a>
+    <div class="tb-title">09 · <b>寅虎 · 无伤实录</b></div>
+    <div class="tb-right">
+      <span class="pill">02:10</span>
+      <a class="pill" href="https://www.bilibili.com/video/BV12pH9eVE94" target="_blank" rel="noopener" style="text-decoration:none">原视频 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">Bilibili · KD一对A · 非 UI 内容 · 游戏实录</div>
+    <h1 class="title">寅虎：你礼貌吗？——无伤挑战里的节奏</h1>
+    <p class="lede">兵器的「无伤」不是靠手速，而是靠对帧的耐心：起手看得见、判定只有几帧、收招才是惩罚窗口。这页把寅虎的一次出招拆成时间轴，你可以拖着玩一次——看看早闪、完美闪、和站着不动的区别。</p>
+    <div class="metas">
+      <span class="pill v">游戏实录</span>
+      <span class="pill t">招式节奏 / 闪避窗口</span>
+      <span class="pill">2024-09-06</span>
+    </div>
+    <div class="quote">「<b>寅虎</b>：你礼貌吗？」——标题是个玩家梗；Boss 的出招节奏，恰恰是最讲道理的那部分。</div>
+  </section>
+
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">信息</span>
+      <div><h2>这条视频</h2><p>标题、时间、内容摘要来自视频页公开信息。</p></div>
+    </div>
+    <div class="pane">
+      <div class="pane-h"><span class="tag w">2024-09-06 · 02:10</span><span class="count">464 播放 · 0 弹幕</span></div>
+      <div class="stage" style="align-items:flex-start;gap:10px">
+        <b style="font-size:14px">寅虎：你礼貌吗？</b>
+        <p style="font-size:13px;color:var(--ink-2);line-height:1.75">同样是 GTX 1060 老显卡 + 禁字法术流的无伤挑战，作者自述磨了两天才过；结尾差一点没打出四段棍，自嘲「虽然没有四段棍收尾，还是挺满意」。</p>
+        <div class="row" style="margin-top:4px">
+          <span class="pill" style="background:var(--amber-2);color:var(--amber)">禁字法术流</span>
+          <span class="pill" style="background:var(--amber-2);color:var(--amber)">无伤</span>
+          <span class="pill" style="background:var(--amber-2);color:var(--amber)">ARPG 新手</span>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px"><a class="btn sm ghost" href="https://www.bilibili.com/video/BV12pH9eVE94" target="_blank" rel="noopener" style="text-decoration:none">在 B 站打开 ↗</a><a class="btn sm ghost" href="08-虎先锋-·-无伤实录.html" style="text-decoration:none">看另一条：虎先锋 →</a></div>
+    </div>
+  </section>
+
+  <section class="demo">
+    <div class="demo-head"><span class="dnum">演示</span>
+      <div><h2>把一次出招拆成时间轴（自制示意）</h2>
+      <p>拖游标到某一帧，再点「闪避」。判定期只有很窄一截，早了晚了都要吃伤害。</p></div>
+    </div>
+    <div class="split">
+      <div class="pane">
+        <div class="pane-h"><span class="tag v">寅虎 · 蓄力三连</span><span class="count" id="frameState">第 0 帧</span></div>
+        <div class="stage" style="align-items:stretch;gap:14px">
+          <div class="timeline" id="timeline">
+            <div class="tlzone wind"><span>起手</span></div>
+            <div class="tlzone hit"><span>判定</span></div>
+            <div class="tlzone rec"><span>收招</span></div>
+            <div class="playhead" id="playhead"></div>
+          </div>
+          <input type="range" id="frameRange" min="0" max="100" value="24" step="1">
+          <div class="row">
+            <button class="btn sm primary" id="dodgeBtn">闪避</button>
+            <span class="count" id="dodgeResult">等待操作</span>
+          </div>
+        </div>
+        <p class="note" id="dodgeNote">判定帧前 2~3 帧按下闪避，无敌帧刚好盖住伤害——这就是所谓「完美闪避」。</p>
+      </div>
+      <div class="pane">
+        <div class="pane-h"><span class="tag">五连测试</span><span class="count" id="hpState">血量 5 / 5</span></div>
+        <div class="stage" style="justify-content:flex-start;gap:12px">
+          <div class="hpips" id="hpips"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="logstack" id="dodgeLog">连续 5 次闪避，看看能不能零伤害收尾。</div>
+        </div>
+        <p class="note">无伤的关键不是「一直按」，而是<strong>每次都在正确的窗口里按一次</strong>。</p>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="notes">
+    <h2>这期视频的要点</h2>
+    <ul class="nlist"><li><div><b>非 UI 内容</b>：2024 年的《黑神话：悟空》寅虎无伤实况，属于个人游戏记录。</div></li><li><div><b>配置与流派</b>：GTX 1060 + 禁字法术流，作者自述磨了两天才过。</div></li><li><div><b>「你礼貌吗」是梗</b>：吐槽 Boss 出招毫不留情，尤其是贴身的三连。</div></li><li><div><b>无伤的真相</b>：不是手速，是记住「起手—判定—收招」的节奏，在该按的那一帧按一次。</div></li><li><div><b>和 UI 的相通点</b>：动画的「缓入缓出」、按钮的「按下—抬起」，同样是在时间轴上安排窗口。</div></li></ul>
+  </section>
+
+  <nav class="pager"><a href="08-虎先锋-·-无伤实录.html"><div class="k">← 上一个</div><div class="t">08 虎先锋 · 无伤实录</div></a><a class="next" href="index.html"><div class="k">回到目录 →</div><div class="t">全部视频</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：对比演示是按视频公开的要点做的交互还原，用于投屏讲解；组件形态与视频中演示的一致，但画面不是视频原片截图。<br>
+    <b>技术</b>：单文件 HTML，零外部依赖，可离线打开；所有页面统一套用同一段 CSS Reset。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2400);
+  };
+})();
+</script>
+<script>
+
+(function(){
+  var range=document.getElementById('frameRange'), head=document.getElementById('playhead');
+  var state=document.getElementById('frameState');
+  var result=document.getElementById('dodgeResult'), note=document.getElementById('dodgeNote');
+  function paint(){
+    var v=parseInt(range.value,10);
+    head.style.left=v+'%';
+    var phase = v<40?'起手':(v<58?'判定':'收招');
+    state.textContent='第 '+v+' 帧 · '+phase;
+    return v;
+  }
+  range.addEventListener('input',paint); paint();
+
+  var hp=5, tries=0;
+  var pips=document.querySelectorAll('#hpips i');
+  var log=document.getElementById('dodgeLog'), hpState=document.getElementById('hpState');
+  function hit(){
+    hp=Math.max(0,hp-1);
+    pips.forEach(function(p,i){ p.classList.toggle('lost', i>=hp); });
+    hpState.textContent='血量 '+hp+' / 5';
+  }
+  document.getElementById('dodgeBtn').addEventListener('click',function(){
+    var v=parseInt(range.value,10);
+    tries++;
+    var msg='', ok=false;
+    if(v>=52 && v<60){ msg='<span class="ok">完美闪避</span>：无敌帧盖住判定帧，反手一棍'; ok=true;
+      result.textContent='完美闪避'; note.textContent='判定帧前一瞬按下，无敌帧刚好覆盖伤害——收益也最高。'; }
+    else if(v<22){ msg='<span class="bad">闪早了</span>：无敌帧用光，正好撞上判定'; hit();
+      result.textContent='闪早了'; note.textContent='闪避有很短的冷却，太早按下等于空放，判定来时只能硬吃。'; }
+    else if(v<52){ msg='<span class="bad">早了半拍</span>：无敌帧结束时判定还没到'; hit();
+      result.textContent='早了半拍'; note.textContent='距离完美窗口还差一点，再等几帧就行。'; }
+    else if(v<70){ msg='<span class="ok">闪开了</span>：判定已过，安全但没收益'; ok=true;
+      result.textContent='安全闪开'; note.textContent='判定帧已经过去，这一下不亏，但也错过了完美闪避的增益。'; }
+    else { msg='<span class="ok">收招期闪避</span>：安全，只是浪费了体力'; ok=true;
+      result.textContent='收招闪避'; note.textContent='收招期其实是输出窗口，闪避反而把机会让了出去。'; }
+    log.innerHTML='第 '+tries+' 次 · 第 '+v+' 帧 —— '+msg + (hp===0?'<br><b>血量归零，无伤挑战失败。</b> 从头再来。':'');
+    if(hp===0){ setTimeout(reset,900); }
+    toast(ok? '闪开了':'吃到伤害');
+  });
+  function reset(){ hp=5; tries=0; pips.forEach(function(p){p.classList.remove('lost');});
+    hpState.textContent='血量 5 / 5'; log.textContent='连续 5 次闪避，看看能不能零伤害收尾。'; }
+})();
+
+</script>
+</body>
+</html>

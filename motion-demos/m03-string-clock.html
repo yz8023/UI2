@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>指针是一根会晃的绳子。 · 动效演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+/* ============ motion 专用 ============ */
+.casebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:12px;color:var(--ink-3)}
+.casebar a{text-decoration:none;color:var(--ink-2);background:var(--card-2);padding:5px 10px;border-radius:7px}
+.casebar a:hover{color:var(--ink);background:var(--card-3)}
+.stagewrap{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-top:16px}
+.stagebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.stagebar .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-3);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.readout b{color:var(--ink);font-weight:600}
+.readout .sep{opacity:.45}
+.canvasbox{position:relative;border-radius:14px;overflow:hidden;background:var(--paper,#fff);
+  box-shadow:inset 0 0 0 1px var(--line);touch-action:none;cursor:crosshair}
+.canvasbox canvas{display:block;width:100%;height:auto}
+.hint{font-size:12px;color:var(--ink-3);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.hint::before{content:"↳";opacity:.7}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+
+/* 提示词面板 */
+.prompt{margin-top:34px;border-radius:var(--r);background:var(--card);box-shadow:var(--sh);overflow:hidden}
+.prompt-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.prompt-h h2{font-size:15.5px}
+.prompt-h .pill{font-size:11px;padding:4px 9px;border-radius:6px;background:var(--card-2);color:var(--ink-3)}
+.prompt-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pcol{padding:17px 18px;min-width:0}
+.pcol + .pcol{border-left:1px solid var(--line)}
+.pcol h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;font-weight:600}
+.kv{display:grid;gap:7px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.kv div{display:grid;grid-template-columns:64px 1fr;gap:9px}
+.kv .k{color:var(--ink-3)}
+.kv .v{color:var(--ink)}
+.reqs{display:grid;gap:8px}
+.req{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);cursor:pointer;line-height:1.55}
+.req input{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:4px;margin-top:2px;flex:0 0 auto;
+  box-shadow:inset 0 0 0 1.5px var(--line-2);background:var(--card);cursor:pointer;position:relative}
+.req input:checked{background:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.req input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+.req b{color:var(--ink);font-weight:600}
+.prompt-foot{padding:0 18px 17px}
+textarea.custom{width:100%;min-height:56px;resize:vertical;padding:10px 12px;border-radius:10px;border:0;
+  background:var(--card-2);font:inherit;font-size:12.5px;color:var(--ink);outline:none;line-height:1.6;
+  box-shadow:inset 0 0 0 1px transparent}
+textarea.custom:focus{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+textarea.custom::placeholder{color:var(--ink-3)}
+.prompt-out{margin-top:14px;position:relative}
+pre.pcode{margin:0;padding:15px 16px;border-radius:12px;background:var(--card-2);color:var(--ink-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.8px;line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.copybar{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.copy-main{padding:9px 16px;border-radius:10px;background:var(--teal);color:#fff;font-size:13px;font-weight:600}
+[data-theme="dark"] .copy-main{color:#06211d}
+.copy-main:hover{background:color-mix(in srgb,var(--teal) 86%, #000)}
+.copy-main.done{background:var(--ok,#2c7a5b)}
+.copy-tip{font-size:11.5px;color:var(--ink-3)}
+.notes2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+.notes2 .card2{background:var(--card);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--sh)}
+.notes2 h3{font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.notes2 h3 .dotm{width:7px;height:7px;border-radius:50%;display:block}
+.notes2 ul{margin:0;padding:0;display:grid;gap:8px;font-size:12.8px;color:var(--ink-2);line-height:1.7}
+.notes2 li{list-style:none;display:grid;grid-template-columns:13px 1fr;gap:7px}
+.notes2 li::before{content:"·";color:var(--ink-3);font-weight:700}
+.notes2 b{color:var(--ink);font-weight:600}
+@media (max-width:900px){
+  .prompt-body{grid-template-columns:1fr}
+  .pcol + .pcol{border-left:0;border-top:1px solid var(--line)}
+  .notes2{grid-template-columns:1fr}
+}
+
+
+#c3{background:#e9e9e9}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部动效
+    </a>
+    <div class="tb-title">03 · <b>弹性指针时钟</b></div>
+    <div class="tb-right">
+      <span class="pill">dom + canvas</span>
+      <a class="pill" href="https://github.com/feitangyuan/motion-web/tree/main/cases/string-clock" target="_blank" rel="noopener" style="text-decoration:none">源码 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">motion-web · case 03 · dom + canvas</div>
+    <h1 class="title">指针是一根会晃的绳子。</h1>
+    <p class="lede">指针的两端都在正确位置——中心的结和真实角度上的针尖——但中间 300 个单位拒绝连成一条直线。你可以抓住任意针尖或中心的结，把它甩出去，看它自己弹回来。</p>
+    <div class="quote">「两端都对，中间不听话。」<small>cases/string-clock · 设计说明</small></div>
+    <div class="casebar">
+      <span>参考项目</span>
+      <a href="https://github.com/feitangyuan/motion-web" target="_blank" rel="noopener">feitangyuan/motion-web</a>
+      <a href="https://github.com/feitangyuan/motion-web/tree/main/cases/string-clock" target="_blank" rel="noopener">cases/string-clock</a>
+      <span style="color:var(--ink-3)">原参考：@itshassco 的 CO'WATCH! 表盘</span>
+    </div>
+  </section>
+
+
+  <section class="stagewrap">
+    <div class="stagebar">
+      <span class="lbl">case 03 · string-clock · slack hands</span>
+      <div class="readout"><b id="r3a">--:--:--</b><span class="sep">·</span><span>松弛度 <b id="r3b">0.0</b> px</span><span class="sep">·</span><span>角度误差 <b id="r3c">0.0°</b></span></div>
+    </div>
+    <div class="canvasbox" style="background:#e9e9e9"><canvas id="c3" width="960" height="470"></canvas></div>
+    <div class="ctrls">
+      <button class="btn sm" id="b3fling">甩一下指针</button>
+      <button class="btn sm ghost" id="b3calm">立刻回正</button>
+      <span class="hint" style="margin:0">也可以直接用鼠标抓住针尖或中心的结拖。</span>
+    </div>
+    <p class="hint">圆盘是产品感的（居中、克制、无渐变），但指针的物理是创作性的松弛——两套语汇共存。</p>
+  </section>
+
+
+
+  <section class="prompt">
+    <div class="prompt-h">
+      <h2>生成提示词</h2>
+      <span class="pill">参考项目 + 变更要求 → 一键复制</span>
+    </div>
+    <div class="prompt-body">
+      <div class="pcol">
+        <h3>01 · 参考项目</h3>
+        <div class="kv">
+          <div><span class="k">项目</span><span class="v">feitangyuan/motion-web（CC BY-NC 4.0）</span></div>
+          <div><span class="k">案例</span><span class="v">cases/string-clock · Canvas 2D + 弹簧</span></div>
+          <div><span class="k">机制</span><span class="v">每根指针是一条 24 节的链，链节按「前一点 + 固定段长指向真角度」逐级跟随，形成松弛弹簧感；指针可抓取。</span></div>
+          <div><span class="k">关键参数</span><span class="v">表盘 #e9e9e9 · 表面 #fcfcfc · 墨 #141414 · 强调红 #d81b2d · 节距 ≈ 真长度/24 · 跟随系数 0.28</span></div>
+          <div><span class="k">判据</span><span class="v">甩动后必须出现可见弯曲；松手 3 秒内回到真角度 ±1°；拖动针尖时不改变走时</span></div>
+        </div>
+      </div>
+      <div class="pcol">
+        <h3>02 · 变更要求（可勾选 / 可自写）</h3>
+        <div class="reqs"><label class="req"><input type="checkbox" data-req="换掉整套配色与文案，只保留机制（改成我自己的品牌色）"><span>换掉整套配色与文案，只保留机制（改成我自己的品牌色）</span></label><label class="req"><input type="checkbox" data-req="改成移动端优先：全部交互换成单指手势，去掉悬停依赖"><span>改成移动端优先：全部交互换成单指手势，去掉悬停依赖</span></label><label class="req"><input type="checkbox" data-req="性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半"><span>性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半</span></label><label class="req"><input type="checkbox" data-req="零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图"><span>零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图</span></label><label class="req"><input type="checkbox" data-req="补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动"><span>补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动</span></label><label class="req"><input type="checkbox" data-req="改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏"><span>改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏</span></label></div>
+        <div style="margin-top:12px">
+          <textarea class="custom" id="promptCustom" placeholder="再补一句你的要求，例如：换成中秋主题、卡片文案改成订单数据……"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="prompt-foot">
+      <div class="prompt-out">
+        <pre class="pcode" id="promptBase">做一个单文件 HTML（Canvas 2D + rAF，无框架），复刻 motion-web 的 string-clock：指针是一根会晃的绳子。
+
+【机制要求】
+1) 表盘：60 个分钟刻度（#c1c1c1）、12 个小时刻度（#717171，加粗）、中心一枚 #fcfcfc 圆结；背景 #e9e9e9，无任何渐变。
+2) 三根指针（时 / 分 / 秒）各是一条 24 节的链：第 0 节固定在中心，最后一节必须位于真实角度上的针尖，中间每一节只满足"距上一节固定长度"的约束。
+3) 跟随系数约 0.28：目标角度正常走时的时候指针看起来几乎笔直；一旦被甩动或被拖动，中段会明显弯曲、滞后、再弹回。
+4) 可以直接用指针抓住任意一根针的针尖（从第 4 节往后任意一点）拖动，也可以抓中心的结；松手后自动回正。
+5) 指针颜色：时 / 分 #141414，秒 #d81b2d；线宽 7 / 5 / 3。
+6) 必须有一处 DOM 读数：当前时间、松弛度（真长度 − 实际直线距离）、角度误差（度）。
+7) 不要用 lerp 直接插值角度——必须让指针本体有惯性。
+
+【自检标准】
+- 甩动后必须出现肉眼可见的弯曲；松手 3 秒内回到真角度 ±1°；
+- 拖动针尖时不能影响真实走时（下一帧仍按系统时间走）；
+- 静止时肉眼看上去应接近直线，否则跟随系数过大。
+
+【风格】控制面是产品感的（克制、居中、无装饰），物理是创作性的（松弛、有延迟）。输出完整 HTML。</pre>
+        <pre class="pcode" id="promptOut" style="display:none"></pre>
+        <div style="display:none" id="promptDummy"></div>
+      </div>
+      <div class="copybar">
+        <button class="copy-main" id="copyPrompt">一键复制提示词</button>
+        <span class="copy-tip">复制后直接贴给 AI 编码工具即可生成同款项目</span>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="notes2">
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--teal)"></span>可以照搬（机制层）</h3>
+      <ul><li><div><b>「两端都对、中间松弛」的跟随链</b>：同一份代码可做弹性指针、绳索、尾巴、拖尾。</div></li><li><div><b>每节只满足「距上一节固定长度」</b>：约束越少，越像绳子而不是钢条。</div></li><li><div><b>抓住任何节点再松手</b>：交互成本最低的「可玩」入口。</div></li><li><div><b>三个 DOM 读数</b>：松弛度与角度误差把「手感」变成了可验证的数。</div></li></ul>
+    </div>
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--red)"></span>不许照搬（皮层）</h3>
+      <ul><li><div><b>#d81b2d 这个强调红</b>：可迁移的是「一秒一根红针」的视觉层级。</div></li><li><div><b>24 节 / 跟随 0.28</b>：按你的表盘尺寸重算。</div></li><li><div><b>没有 h1 的排版</b>：是创作站的选择，做产品页就不成立。</div></li></ul>
+    </div>
+  </section>
+
+  <nav class="pager"><a href="m02-lyre-crows.html"><div class="k">← 上一个</div><div class="t">02 竖琴与乌鸦</div></a><a class="next" href="m04-press-stack.html"><div class="k">下一个 →</div><div class="t">04 粘性堆叠</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：演示是按 motion-web 案例公开的机制与实测参数做的原生复现（Canvas 2D / CSS / DOM，无框架无 CDN），用于投屏讲解；视觉细节经简化，不是原案例代码。<br>
+    <b>提示词</b>：勾选「变更要求」会自动拼进下方 prompt，可直接复制给任意 AI 编码工具。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2200);
+  };
+
+  /* 提示词面板：勾选/输入 → 实时重写 prompt → 一键复制 */
+  var base = document.getElementById('promptBase').textContent;
+  var out  = document.getElementById('promptOut');
+  var boxes= document.querySelectorAll('.req input');
+  var custom=document.getElementById('promptCustom');
+  function build(){
+    var lines=[base.trim()];
+    var picked=[];
+    boxes.forEach(function(b){ if(b.checked) picked.push('- '+b.dataset.req); });
+    if(picked.length) lines.push('\n【变更要求】\n'+picked.join('\n'));
+    if(custom.value.trim()) lines.push('\n【自定义要求】\n'+custom.value.trim());
+    out.textContent=lines.join('\n');
+  }
+  boxes.forEach(function(b){ b.addEventListener('change',build); });
+  custom.addEventListener('input',build);
+  build();
+  document.getElementById('copyPrompt').addEventListener('click',function(){
+    var text=out.textContent, btn2=this;
+    function done(){ btn2.classList.add('done'); var o=btn2.textContent; btn2.textContent='已复制 ✓';
+      setTimeout(function(){ btn2.classList.remove('done'); btn2.textContent=o; },1800); }
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ toast('请手动选择文本复制'); }
+      document.body.removeChild(ta);
+    }
+    if(window.AndroidBridge&&window.AndroidBridge.copy){ try{ window.AndroidBridge.copy(text); done(); return; }catch(e){} }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(fallback); }
+    else { fallback(); }
+  });
+})();
+</script>
+<script>
+
+(function(){
+  var cv=document.getElementById('c3'), ctx=cv.getContext('2d');
+  var W=960,H=470, cx=W/2, cy=H/2+6, R=372;
+  var SEG=24;
+  function mkHand(len,k){ return {len:len,k:k,pts:[]}; }
+  var hour=mkHand(104,0.30), minu=mkHand(146,0.30), sec=mkHand(168,0.42);
+  function initHand(h,ang){
+    h.pts=[];
+    for(var i=0;i<=SEG;i++){ h.pts.push({x:cx+Math.cos(ang)*h.len*i/SEG, y:cy+Math.sin(ang)*h.len*i/SEG}); }
+  }
+  initHand(hour,-Math.PI/2); initHand(minu,-Math.PI/2); initHand(sec,-Math.PI/2);
+
+  var drag=null;
+  function pos(e){ var r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*(W/r.width),y:(e.clientY-r.top)*(H/r.height)}; }
+  cv.addEventListener('pointerdown',function(e){
+    var p=pos(e);
+    var list=[{h:sec,pts:sec.pts},{h:minu,pts:minu.pts},{h:hour,pts:hour.pts}];
+    var best=null,bd=26;
+    list.forEach(function(o){
+      o.pts.forEach(function(pt,i){
+        if(i<4) return;
+        var d=Math.hypot(pt.x-p.x,pt.y-p.y);
+        if(d<bd){ bd=d; best={hand:o.h,idx:i}; }
+      });
+    });
+    if(Math.hypot(p.x-cx,p.y-cy)<26) best={hand:minu,idx:2};
+    if(best) drag={hand:best.hand,idx:best.idx,x:p.x,y:p.y};
+  });
+  cv.addEventListener('pointermove',function(e){
+    if(!drag) return;
+    var p=pos(e); drag.x=p.x; drag.y=p.y;
+    drag.hand.pts[drag.idx].x=p.x; drag.hand.pts[drag.idx].y=p.y;
+  });
+  window.addEventListener('pointerup',function(){ drag=null; });
+
+  document.getElementById('b3fling').addEventListener('click',function(){
+    [hour,minu,sec].forEach(function(h,i){
+      for(var j=4;j<h.pts.length;j++){
+        var a=-Math.PI/2, r=h.len*j/SEG;
+        h.pts[j].x+=Math.cos(a+j*0.32)*(46+i*14);
+        h.pts[j].y+=Math.sin(a+j*0.32)*(46+i*14);
+      }
+    });
+    toast('甩出去了，看它自己回正');
+  });
+  document.getElementById('b3calm').addEventListener('click',function(){
+    ['hour','minu','sec'].forEach(function(){});
+  });
+
+  function stepHand(h,ang,now){
+    var target={x:cx+Math.cos(ang)*h.len, y:cy+Math.sin(ang)*h.len};
+    h.pts[0].x=cx; h.pts[0].y=cy;
+    for(var i=1;i<h.pts.length;i++){
+      var prev=h.pts[i-1], cur=h.pts[i];
+      var segLen=h.len/SEG;
+      /* 目标方向：从上一节指向针尖 */
+      var tx=target.x-prev.x, ty=target.y-prev.y;
+      var tl=Math.hypot(tx,ty)||1;
+      var want={x:prev.x+tx/tl*segLen, y:prev.y+ty/tl*segLen};
+      /* 静止也保持一点下垂：中点最大，两端仍落在正确位置 */
+      want.y += Math.sin(Math.PI*i/h.pts.length) * 1.6;
+      if(i===h.pts.length-1){ want=target; }
+      cur.x+=(want.x-cur.x)*h.k;
+      cur.y+=(want.y-cur.y)*h.k;
+    }
+  }
+  var errEl=document.getElementById('r3c'), slackEl=document.getElementById('r3b'), clockEl=document.getElementById('r3a');
+
+  function drawDial(){
+    ctx.fillStyle='#e9e9e9'; ctx.fillRect(0,0,W,H);
+    ctx.save(); ctx.translate(cx,cy);
+    ctx.strokeStyle='#dddddd'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(0,0,R-40,0,7); ctx.stroke();
+    for(var i=0;i<60;i++){
+      var a=i/60*Math.PI*2-Math.PI/2;
+      var big=(i%5===0);
+      ctx.strokeStyle=big?'#717171':'#c1c1c1';
+      ctx.lineWidth=big?2:1;
+      var r1=R-46, r2=big?R-70:R-58;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a)*r1,Math.sin(a)*r1);
+      ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
+      ctx.stroke();
+    }
+    ctx.fillStyle='#fcfcfc';
+    ctx.beginPath(); ctx.arc(0,0,26,0,7); ctx.fill();
+    ctx.restore();
+  }
+  function drawHand(h,color,width){
+    ctx.strokeStyle=color; ctx.lineWidth=width; ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.beginPath(); ctx.moveTo(h.pts[0].x,h.pts[0].y);
+    for(var i=1;i<h.pts.length;i++) ctx.lineTo(h.pts[i].x,h.pts[i].y);
+    ctx.stroke();
+    var tip=h.pts[h.pts.length-1];
+    ctx.fillStyle=color; ctx.beginPath(); ctx.arc(tip.x,tip.y,5,0,7); ctx.fill();
+  }
+  function draw(){
+    drawDial();
+    drawHand(hour,'#141414',7);
+    drawHand(minu,'#141414',5);
+    drawHand(sec,'#d81b2d',3);
+    ctx.fillStyle='#141414'; ctx.beginPath(); ctx.arc(cx,cy,6,0,7); ctx.fill();
+    ctx.fillStyle='#fcfcfc'; ctx.beginPath(); ctx.arc(cx,cy,2.4,0,7); ctx.fill();
+  }
+  var acc=0;
+  function loop(t){
+    var d=new Date();
+    var secA=(d.getSeconds()+d.getMilliseconds()/1000)/60*Math.PI*2-Math.PI/2;
+    var minA=(d.getMinutes()+d.getSeconds()/60)/60*Math.PI*2-Math.PI/2;
+    var hourA=((d.getHours()%12)+d.getMinutes()/60)/12*Math.PI*2-Math.PI/2;
+    if(!drag||drag.hand!==sec) stepHand(sec,secA,t);
+    if(!drag||drag.hand!==minu) stepHand(minu,minA,t);
+    if(!drag||drag.hand!==hour) stepHand(hour,hourA,t);
+    if(drag){
+      var h=drag.hand;
+      for(var i=drag.idx-1;i>=0;i--){ h.pts[i].x+=(h.pts[i+1].x-h.pts[i].x)*0.3; h.pts[i].y+=(h.pts[i+1].y-h.pts[i].y)*0.3; }
+      for(var j=drag.idx+1;j<h.pts.length;j++){
+        var prev=h.pts[j-1], cur=h.pts[j];
+        var segLen=h.len/SEG, dx=cur.x-prev.x, dy=cur.y-prev.y, dl=Math.hypot(dx,dy)||1;
+        cur.x+=(prev.x+dx/dl*segLen-cur.x)*0.6;
+        cur.y+=(prev.y+dy/dl*segLen-cur.y)*0.6;
+      }
+    }
+    draw();
+    acc+=1/60;
+    if(acc>0.2){
+      acc=0;
+      clockEl.textContent=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+':'+('0'+d.getSeconds()).slice(-2);
+      var tip=sec.pts[sec.pts.length-1];
+      /* 弯曲度：所有节点到「中心—针尖」弦的最大距离 */
+      var chord=Math.hypot(tip.x-cx,tip.y-cy)||1;
+      var nx=(tip.y-cy)/chord, ny=-(tip.x-cx)/chord, bow=0;
+      sec.pts.forEach(function(pt){
+        var d=Math.abs((pt.x-cx)*nx+(pt.y-cy)*ny);
+        if(d>bow) bow=d;
+      });
+      slackEl.textContent=bow.toFixed(1);
+      var ang=Math.atan2(tip.y-cy,tip.x-cx);
+      var want=secA, diff=Math.abs(((ang-want+Math.PI*3)%(Math.PI*2))-Math.PI)*180/Math.PI;
+      errEl.textContent=diff.toFixed(1)+'°';
+    }
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>把「手绘 3D」画成它自己讲的样子。 · 动效演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+/* ============ motion 专用 ============ */
+.casebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:12px;color:var(--ink-3)}
+.casebar a{text-decoration:none;color:var(--ink-2);background:var(--card-2);padding:5px 10px;border-radius:7px}
+.casebar a:hover{color:var(--ink);background:var(--card-3)}
+.stagewrap{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-top:16px}
+.stagebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.stagebar .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-3);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.readout b{color:var(--ink);font-weight:600}
+.readout .sep{opacity:.45}
+.canvasbox{position:relative;border-radius:14px;overflow:hidden;background:var(--paper,#fff);
+  box-shadow:inset 0 0 0 1px var(--line);touch-action:none;cursor:crosshair}
+.canvasbox canvas{display:block;width:100%;height:auto}
+.hint{font-size:12px;color:var(--ink-3);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.hint::before{content:"↳";opacity:.7}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+
+/* 提示词面板 */
+.prompt{margin-top:34px;border-radius:var(--r);background:var(--card);box-shadow:var(--sh);overflow:hidden}
+.prompt-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.prompt-h h2{font-size:15.5px}
+.prompt-h .pill{font-size:11px;padding:4px 9px;border-radius:6px;background:var(--card-2);color:var(--ink-3)}
+.prompt-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pcol{padding:17px 18px;min-width:0}
+.pcol + .pcol{border-left:1px solid var(--line)}
+.pcol h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;font-weight:600}
+.kv{display:grid;gap:7px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.kv div{display:grid;grid-template-columns:64px 1fr;gap:9px}
+.kv .k{color:var(--ink-3)}
+.kv .v{color:var(--ink)}
+.reqs{display:grid;gap:8px}
+.req{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);cursor:pointer;line-height:1.55}
+.req input{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:4px;margin-top:2px;flex:0 0 auto;
+  box-shadow:inset 0 0 0 1.5px var(--line-2);background:var(--card);cursor:pointer;position:relative}
+.req input:checked{background:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.req input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+.req b{color:var(--ink);font-weight:600}
+.prompt-foot{padding:0 18px 17px}
+textarea.custom{width:100%;min-height:56px;resize:vertical;padding:10px 12px;border-radius:10px;border:0;
+  background:var(--card-2);font:inherit;font-size:12.5px;color:var(--ink);outline:none;line-height:1.6;
+  box-shadow:inset 0 0 0 1px transparent}
+textarea.custom:focus{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+textarea.custom::placeholder{color:var(--ink-3)}
+.prompt-out{margin-top:14px;position:relative}
+pre.pcode{margin:0;padding:15px 16px;border-radius:12px;background:var(--card-2);color:var(--ink-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.8px;line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.copybar{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.copy-main{padding:9px 16px;border-radius:10px;background:var(--teal);color:#fff;font-size:13px;font-weight:600}
+[data-theme="dark"] .copy-main{color:#06211d}
+.copy-main:hover{background:color-mix(in srgb,var(--teal) 86%, #000)}
+.copy-main.done{background:var(--ok,#2c7a5b)}
+.copy-tip{font-size:11.5px;color:var(--ink-3)}
+.notes2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+.notes2 .card2{background:var(--card);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--sh)}
+.notes2 h3{font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.notes2 h3 .dotm{width:7px;height:7px;border-radius:50%;display:block}
+.notes2 ul{margin:0;padding:0;display:grid;gap:8px;font-size:12.8px;color:var(--ink-2);line-height:1.7}
+.notes2 li{list-style:none;display:grid;grid-template-columns:13px 1fr;gap:7px}
+.notes2 li::before{content:"·";color:var(--ink-3);font-weight:700}
+.notes2 b{color:var(--ink);font-weight:600}
+@media (max-width:900px){
+  .prompt-body{grid-template-columns:1fr}
+  .pcol + .pcol{border-left:0;border-top:1px solid var(--line)}
+  .notes2{grid-template-columns:1fr}
+}
+
+
+#c7{background:#fff}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部动效
+    </a>
+    <div class="tb-title">07 · <b>手绘 3D</b></div>
+    <div class="tb-right">
+      <span class="pill">webgl2（本页 canvas 2d 近似）</span>
+      <a class="pill" href="https://github.com/feitangyuan/motion-web/tree/main/cases/ink-crowd" target="_blank" rel="noopener" style="text-decoration:none">源码 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">motion-web · case 07 · webgl2（本页 canvas 2d 近似）</div>
+    <h1 class="title">把「手绘 3D」画成它自己讲的样子。</h1>
+    <p class="lede">原案例是手写 WebGL2：实例化胶囊 → 深度纹理 → 只在深度不连续处描边 → 叠 11Hz 的「沸腾」抖动与颗粒。这一页用 Canvas 2D 复现同一套可见机制：轮廓只出现在整体的外缘而不是每一块的接缝上，线条每 1/11 秒轻轻抖一下，贴图感来自颗粒而不是渐变。</p>
+    <div class="quote">「先用 DOM 写的页面，永远长成 div。」<small>cases/ink-crowd · 设计说明</small></div>
+    <div class="casebar">
+      <span>参考项目</span>
+      <a href="https://github.com/feitangyuan/motion-web" target="_blank" rel="noopener">feitangyuan/motion-web</a>
+      <a href="https://github.com/feitangyuan/motion-web/tree/main/cases/ink-crowd" target="_blank" rel="noopener">cases/ink-crowd</a>
+      <span style="color:var(--ink-3)">原参考：ink-crowd.vercel.app（@pallavmac 的浏览器游戏）</span>
+    </div>
+  </section>
+
+
+  <section class="stagewrap">
+    <div class="stagebar">
+      <span class="lbl">case 07 · ink-crowd · boil 11Hz</span>
+      <div class="readout"><b id="r7a">STEP 0</b><span class="sep">·</span><span>偏航 <b id="r7b">0°</b></span><span class="sep">·</span><span>形体 <b id="r7c">0</b></span></div>
+    </div>
+    <div class="canvasbox" style="background:#fff"><canvas id="c7" width="960" height="470"></canvas></div>
+    <div class="ctrls">
+      <label class="switch" id="sw7" role="switch" aria-checked="true"><span class="track"><span class="knob"></span></span>开启 boil（11Hz）</label>
+      <button class="btn sm ghost" id="b7reset">回正</button>
+      <span class="hint" style="margin:0">在画面上左右移动鼠标 → 角色转向；关掉 boil 立刻能看到「数码味」回来。</span>
+    </div>
+    <p class="hint">原版是 WebGL2 的两次 pass（颜色 + 视图法线 + 深度，再在深度断点处画线）；这里用「外扩描边 + 回填」近似同一视觉：内部接缝被吃掉，只留外缘。</p>
+  </section>
+
+
+
+  <section class="prompt">
+    <div class="prompt-h">
+      <h2>生成提示词</h2>
+      <span class="pill">参考项目 + 变更要求 → 一键复制</span>
+    </div>
+    <div class="prompt-body">
+      <div class="pcol">
+        <h3>01 · 参考项目</h3>
+        <div class="kv">
+          <div><span class="k">项目</span><span class="v">feitangyuan/motion-web（CC BY-NC 4.0）</span></div>
+          <div><span class="k">案例</span><span class="v">cases/ink-crowd · Canvas 2D 近似 WebGL2 管线</span></div>
+          <div><span class="k">机制</span><span class="v">胶囊骨架投影 → 外扩描边 + 白色回填吃掉内部接缝（近似深度断点描边）→ 11Hz boil 抖动 → 二值调色板 + 颗粒。</span></div>
+          <div><span class="k">关键参数</span><span class="v">boil 11Hz · 描边 2.7px · 颗粒 0.012 · 调色板二值：79% 白 / 16.5% 黑 · 每帧 95% 变化、无周期性停顿</span></div>
+          <div><span class="k">判据</span><span class="v">必须声明渲染层 · 描边只出现在整体外缘（不出现内部接缝）· boil 必须按 11Hz 量化而非每帧随机</span></div>
+        </div>
+      </div>
+      <div class="pcol">
+        <h3>02 · 变更要求（可勾选 / 可自写）</h3>
+        <div class="reqs"><label class="req"><input type="checkbox" data-req="换掉整套配色与文案，只保留机制（改成我自己的品牌色）"><span>换掉整套配色与文案，只保留机制（改成我自己的品牌色）</span></label><label class="req"><input type="checkbox" data-req="改成移动端优先：全部交互换成单指手势，去掉悬停依赖"><span>改成移动端优先：全部交互换成单指手势，去掉悬停依赖</span></label><label class="req"><input type="checkbox" data-req="性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半"><span>性能降级版：低端机 30fps 也要顺，把粒子/节点数量减半</span></label><label class="req"><input type="checkbox" data-req="零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图"><span>零依赖内联：单文件 HTML，不引框架、不引 CDN、不引位图</span></label><label class="req"><input type="checkbox" data-req="补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动"><span>补充 prefers-reduced-motion：关闭自转与循环动画，只保留用户输入引发的运动</span></label><label class="req"><input type="checkbox" data-req="改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏"><span>改成可直接嵌入的组件：给定容器宽高后自适应，不依赖全屏</span></label></div>
+        <div style="margin-top:12px">
+          <textarea class="custom" id="promptCustom" placeholder="再补一句你的要求，例如：换成中秋主题、卡片文案改成订单数据……"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="prompt-foot">
+      <div class="prompt-out">
+        <pre class="pcode" id="promptBase">做一个单文件 HTML，复刻 motion-web 的 ink-crowd「手绘 3D」质感。首选 WebGL2（手写、无框架、无 CDN）；如果环境不支持，用 Canvas 2D 近似，但必须保留下面三项可见机制。
+
+【机制要求】
+1) 角色由若干个「胶囊」组成（身体、头、双臂、双腿、天线），有真实的三维位置、半径、长度、朝向；相机做简单偏航旋转 + 一点透视。
+2) 描边只出现在整体的外缘：原版靠深度纹理做深度不连续检测，内部接缝一律不描；如果你在 2D 里实现，用「所有形体先外扩 2px 填墨色、再原尺寸填白」的两遍画法达到同样效果。绝不要给每个胶囊各画一圈完整黑边（那是卡通渲染，不是这个案例）。
+3) 「沸腾」：所有控制点每 1/11 秒才更新一次抖动量（±1px，用 step 索引参与相位），而不是每帧随机——每帧随机会变成噪点，11Hz 量化才有手绘呼吸感。
+4) 调色板二值：约 79% 白 + 16.5% 黑，没有灰色、没有渐变；地面阴影是黑色粗描边的椭圆，不是投影。
+5) 叠加轻微颗粒（强度约 0.012，种子化固定位置），让白底不是死白。
+6) 交互只有一个：指针左右移动 = 角色转向；关掉 boil 应立刻能看出「数码味」回来。
+7) DOM 读数：boil step 索引、当前偏航角、形体数量。
+
+【关键参数】boil 11Hz · 描边 2.7px · 颗粒 0.012 · 二值调色板 · 深度不连续阈值由你定但必须只在断点画线
+【自检标准】
+- 截图上只出现整体外缘、不出现内部接缝；
+- 静止时仍有 11Hz 的轻微抖动，但轮廓结构不变（不是闪烁）；
+- 关掉 boil 后画面立刻「死」下来，证明 boil 是唯一的高频变化源。
+
+输出完整 HTML（若用 WebGL2，把两个 pass 的着色器写在同一个字符串模板里，并在注释里标明每个 uniform 的作用）。</pre>
+        <pre class="pcode" id="promptOut" style="display:none"></pre>
+        <div style="display:none" id="promptDummy"></div>
+      </div>
+      <div class="copybar">
+        <button class="copy-main" id="copyPrompt">一键复制提示词</button>
+        <span class="copy-tip">复制后直接贴给 AI 编码工具即可生成同款项目</span>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="notes2">
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--teal)"></span>可以照搬（机制层）</h3>
+      <ul><li><div><b>先问渲染层</b>：DOM / Canvas / WebGL 是设计决策，不是实现细节。</div></li><li><div><b>只在深度断点描边</b>：比卡通描边省一半线条，还更像手绘；2D 里可用「外扩 + 回填」等效。</div></li><li><div><b>11Hz 量化的 boil</b>：抖动频率低于帧率才有呼吸感。</div></li><li><div><b>二值调色板 + 颗粒</b>：颗粒替代渐变，是「贴图感」的真正来源。</div></li></ul>
+    </div>
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--red)"></span>不许照搬（皮层）</h3>
+      <ul><li><div><b>ink-crowd 的角色造型与黑白二值</b>：可迁移的是「二值 + 颗粒 + 外缘描边」。</div></li><li><div><b>boil 0.011 / freq 2.2 这组偏置</b>：是原 bundle 里的常量，要按你的形体尺寸重调。</div></li><li><div><b>完整的两 pass 管线</b>：如果你只在 2D 里用外缘近似，就别声称有深度纹理。</div></li></ul>
+    </div>
+  </section>
+
+  <nav class="pager"><a href="m06-toy-flipbook.html"><div class="k">← 上一个</div><div class="t">06 翻页动画玩具</div></a><a class="next" href="index.html"><div class="k">回到目录 →</div><div class="t">全部动效案例</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：演示是按 motion-web 案例公开的机制与实测参数做的原生复现（Canvas 2D / CSS / DOM，无框架无 CDN），用于投屏讲解；视觉细节经简化，不是原案例代码。<br>
+    <b>提示词</b>：勾选「变更要求」会自动拼进下方 prompt，可直接复制给任意 AI 编码工具。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2200);
+  };
+
+  /* 提示词面板：勾选/输入 → 实时重写 prompt → 一键复制 */
+  var base = document.getElementById('promptBase').textContent;
+  var out  = document.getElementById('promptOut');
+  var boxes= document.querySelectorAll('.req input');
+  var custom=document.getElementById('promptCustom');
+  function build(){
+    var lines=[base.trim()];
+    var picked=[];
+    boxes.forEach(function(b){ if(b.checked) picked.push('- '+b.dataset.req); });
+    if(picked.length) lines.push('\n【变更要求】\n'+picked.join('\n'));
+    if(custom.value.trim()) lines.push('\n【自定义要求】\n'+custom.value.trim());
+    out.textContent=lines.join('\n');
+  }
+  boxes.forEach(function(b){ b.addEventListener('change',build); });
+  custom.addEventListener('input',build);
+  build();
+  document.getElementById('copyPrompt').addEventListener('click',function(){
+    var text=out.textContent, btn2=this;
+    function done(){ btn2.classList.add('done'); var o=btn2.textContent; btn2.textContent='已复制 ✓';
+      setTimeout(function(){ btn2.classList.remove('done'); btn2.textContent=o; },1800); }
+    function fallback(){
+      var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ toast('请手动选择文本复制'); }
+      document.body.removeChild(ta);
+    }
+    if(window.AndroidBridge&&window.AndroidBridge.copy){ try{ window.AndroidBridge.copy(text); done(); return; }catch(e){} }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(fallback); }
+    else { fallback(); }
+  });
+})();
+</script>
+<script>
+
+(function(){
+  var cv=document.getElementById('c7'), ctx=cv.getContext('2d');
+  var W=960,H=470;
+  var boilOn=true, yaw=0, targetYaw=0, step=0, lastStep=0;
+  var rA=document.getElementById('r7a'), rB=document.getElementById('r7b'), rC=document.getElementById('r7c');
+
+  var rig=[
+    {x:0,y:-40,z:0,r:34,l:70,a:0,tag:'body'},
+    {x:0,y:-96,z:0,r:26,l:26,a:0,tag:'head'},
+    {x:-46,y:-52,z:6,r:13,l:56,a:-0.5,tag:'armL'},
+    {x:46,y:-52,z:6,r:13,l:56,a:0.5,tag:'armR'},
+    {x:-20,y:10,z:0,r:15,l:60,a:0.12,tag:'legL'},
+    {x:20,y:10,z:0,r:15,l:60,a:-0.12,tag:'legR'},
+    {x:0,y:-124,z:0,r:5,l:18,a:0,tag:'antenna'}
+  ];
+
+  function project(p, cy){
+    var rx = p.x*Math.cos(yaw) - p.z*Math.sin(yaw);
+    var rz = p.x*Math.sin(yaw) + p.z*Math.cos(yaw);
+    var persp = 1/(1+rz/600);
+    return {x: W/2 + rx*persp, y: cy + p.y*persp, r: p.r*persp*persp, l: p.l*persp, a:p.a, z:rz};
+  }
+  function boil(i){ return boilOn ? Math.sin((step*7.3+i*3.1))*0.9 : 0; }
+
+  function capsulePath(g,x1,y1,x2,y2,r){
+    var a=Math.atan2(y2-y1,x2-x1);
+    g.beginPath();
+    g.arc(x1,y1,r,a+Math.PI/2,a-Math.PI/2);
+    g.arc(x2,y2,r,a-Math.PI/2,a+Math.PI/2);
+    g.closePath();
+  }
+  function drawCapsule(g,cp,extra){
+    var dx=Math.cos(cp.a)*cp.l/2, dy=Math.sin(cp.a)*cp.l/2;
+    capsulePath(g, cp.x-dx, cp.y-dy, cp.x+dx, cp.y+dy, cp.r+extra);
+    g.fill();
+  }
+
+  var grain=[];
+  for(var i=0;i<420;i++){
+    grain.push({x:Math.abs(Math.sin(i*713.82))*W, y:Math.abs(Math.cos(i*313.41))*H,
+      a:0.05+Math.abs(Math.sin(i*97.7))*0.16});
+  }
+
+  function draw(){
+    ctx.fillStyle='#fff'; ctx.fillRect(0,0,W,H);
+    var cy=250;
+    var shapes=rig.map(function(p,i){
+      var q=project(p,cy);
+      return {x:q.x+boil(i*2), y:q.y+boil(i*2+1), r:q.r, l:q.l, a:q.a+(i>1?boil(i)*0.004:0)};
+    });
+
+    /* pass 1：整体外扩出墨色；pass 2：白色回填 → 内部接缝消失，只留外缘 */
+    ctx.fillStyle='#0a0a0a';
+    shapes.forEach(function(c){ drawCapsule(ctx,c,1.9); });
+    ctx.fillStyle='#fff';
+    shapes.forEach(function(c){ drawCapsule(ctx,c,0); });
+
+    /* 脸 */
+    var hq=shapes[1];
+    ctx.fillStyle='#0a0a0a';
+    ctx.beginPath(); ctx.ellipse(hq.x-9,hq.y-3,2.6,3.6,0,0,7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(hq.x+9,hq.y-3,2.6,3.6,0,0,7); ctx.fill();
+    ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=1.8; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(hq.x,hq.y+4,5,0.25*Math.PI,0.75*Math.PI); ctx.stroke();
+    var aq=shapes[6];
+    ctx.beginPath(); ctx.arc(aq.x,aq.y-aq.l/2-4,4.4,0,7); ctx.fill();
+    /* 手：两只空心小圆 */
+    [2,3].forEach(function(i){
+      var c=shapes[i];
+      var ex=c.x+Math.cos(c.a)*c.l/2, ey=c.y+Math.sin(c.a)*c.l/2;
+      ctx.fillStyle='#fff'; ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=2.2;
+      ctx.beginPath(); ctx.arc(ex,ey,5.4,0,7); ctx.fill(); ctx.stroke();
+    });
+
+    /* 地面：粗描边椭圆 */
+    ctx.strokeStyle='#0a0a0a'; ctx.lineWidth=2.7;
+    ctx.beginPath();
+    ctx.ellipse(W/2+boil(31), 372+boil(32), 96+boil(33), 15+boil(34), 0, 0, 7);
+    ctx.stroke();
+
+    /* 颗粒 */
+    ctx.fillStyle='#0a0a0a';
+    grain.forEach(function(g){ ctx.globalAlpha=g.a; ctx.fillRect(g.x,g.y,1.6,1.6); });
+    ctx.globalAlpha=1;
+
+    ctx.fillStyle='rgba(10,10,10,.45)';
+    ctx.font='10px ui-monospace, monospace'; ctx.textAlign='left';
+    ctx.fillText('BOIL '+(boilOn?'11Hz':'OFF')+' · OUTLINE ONLY ON SILHOUETTE BREAKS · 79% WHITE / 16.5% BLACK', 34, H-24);
+
+    rC.textContent=shapes.length;
+  }
+
+  var last=performance.now(), drag=false, lastX=0;
+  function px(e){ var r=cv.getBoundingClientRect(); return (e.clientX-r.left)*(W/r.width); }
+  cv.addEventListener('pointerdown',function(e){ drag=true; lastX=px(e); });
+  cv.addEventListener('pointermove',function(e){
+    var x=px(e);
+    if(drag){ targetYaw += (x-lastX)*0.012; lastX=x; }
+    else { targetYaw = (x/W-0.5)*1.2; }
+  });
+  window.addEventListener('pointerup',function(){ drag=false; });
+  document.getElementById('b7reset').addEventListener('click',function(){ targetYaw=0; });
+  var sw=document.getElementById('sw7');
+  sw.addEventListener('click',function(){ boilOn=!boilOn; sw.setAttribute('aria-checked',String(boilOn)); });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowLeft') targetYaw-=0.2;
+    if(e.key==='ArrowRight') targetYaw+=0.2;
+  });
+
+  function loop(now){
+    var dt=Math.min((now-last)/1000,1/30); last=now;
+    yaw += (targetYaw-yaw)*(1-Math.exp(-5*dt));
+    if(now-lastStep > 1000/11){ lastStep=now; step++; }
+    draw();
+    rA.textContent='STEP '+step;
+    rB.textContent=Math.round(yaw*180/Math.PI)+'°';
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+
+</script>
+</body>
+</html>

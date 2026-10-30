@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>motion-web · 7 个动效案例演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10);
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16);
+  --ease:cubic-bezier(.215,.61,.355,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6);
+}
+body{background:var(--bg);color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums;
+  transition:background .35s var(--ease),color .35s var(--ease);text-wrap:pretty}
+::selection{background:var(--violet-2)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+h1,h3{line-height:1.35;letter-spacing:-.02em;font-weight:600}
+svg{display:block}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.topbar{position:sticky;top:0;z-index:50;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:10px;height:60px}
+.brand{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600}
+.brand i{width:26px;height:26px;border-radius:8px;background:linear-gradient(140deg,var(--violet),var(--teal));display:grid;place-items:center;color:#fff;font-style:normal;font-size:12px}
+.spacer{flex:1}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--card-2);color:var(--ink-2)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+main{padding:38px 0 80px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:600;display:flex;align-items:center;gap:8px}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1{font-size:clamp(26px,3.6vw,38px);letter-spacing:-.035em;margin:12px 0 10px}
+.lede{color:var(--ink-2);font-size:15px;max-width:74ch}
+.stats{display:flex;gap:9px;flex-wrap:wrap;margin-top:18px}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2)}
+.pill.v{background:var(--violet-2);color:var(--violet)}
+.pill.t{background:var(--teal-2);color:var(--teal)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.vcard{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:9px;
+  transition:transform .22s var(--ease),box-shadow .22s var(--ease)}
+.vcard:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+.vtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.vno{font-size:11.5px;font-weight:600;padding:4px 8px;border-radius:6px;background:var(--ink);color:var(--bg)}
+[data-theme="dark"] .vno{background:var(--card-3);color:var(--ink)}
+.vtags{font-size:11.5px;color:var(--ink-3)}
+.vdur{margin-left:auto;font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:3px 8px;border-radius:6px}
+.vcard h3{font-size:15px;margin-top:2px}
+.vwhat{font-size:13px;color:var(--ink-2);line-height:1.7}
+.vhow{font-size:12px;color:var(--ink-3);line-height:1.7}
+.vgo{margin-top:auto;font-size:12.5px;color:var(--teal);font-weight:600;padding-top:6px}
+.crosslink{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.crosslink a{background:var(--card);border-radius:12px;padding:12px 16px;box-shadow:var(--sh);
+  font-size:12.8px;color:var(--ink-2);transition:transform .2s var(--ease)}
+.crosslink a:hover{transform:translateY(-2px)}
+.crosslink b{color:var(--ink);display:block;font-size:13.5px;margin-bottom:2px}
+.foot{margin-top:36px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);line-height:1.85}
+.foot b{color:var(--ink-2)}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+@media (max-width:520px){.wrap{padding:0 16px}main{padding:24px 0 56px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><i>动</i>motion-web · 动效演示</div>
+    <div class="spacer"></div>
+    <a class="pill" href="https://github.com/feitangyuan/motion-web" target="_blank" rel="noopener">原项目 ↗</a>
+    <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+      <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+</header>
+<main class="wrap">
+  <div class="kicker">feitangyuan/motion-web · 7 个案例 · 全部可交互</div>
+  <h1>每个案例，一套演示 + 一段可复制的提示词</h1>
+  <p class="lede">把仓库里 7 个已验证案例的机制逐个做成能点的演示（Canvas 2D / CSS / DOM，零依赖零 CDN），演示旁边就是提示词面板：<b>参考项目</b>已填好机制与实测参数，勾几条<b>变更要求</b>，一键复制就能丢给任意 AI 编码工具生成同款项目。</p>
+  <div class="stats">
+    <span class="pill v">7 个单文件 HTML</span>
+    <span class="pill t">机制复现，非原码拷贝</span>
+    <span class="pill">提示词可选可编辑</span>
+    <span class="pill">统一套用同一段 CSS Reset</span>
+  </div>
+  <div class="grid">
+    <a class="vcard" href="m01-char-curtain.html">
+      <div class="vtop"><span class="vno">01</span><span class="vtags">canvas 2d</span><span class="vdur">结构即机制</span></div>
+      <h3>Hang it, then part it.</h3>
+      <p class="vwhat">24 根独立的绳，横推会分开而不是压塌</p>
+      <p class="vhow">Verlet · 只连竖向 · 速度→颜色</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a>
+    <a class="vcard" href="m02-lyre-crows.html">
+      <div class="vtop"><span class="vno">02</span><span class="vtags">canvas 2d</span><span class="vdur">因果生态</span></div>
+      <h3>Strum it and a word gets eaten.</h3>
+      <p class="vwhat">拨弦震落一个词，三只乌鸦抢着把尾巴改写</p>
+      <p class="vhow">无时间线 · 全是上一步的结果</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a>
+    <a class="vcard" href="m03-string-clock.html">
+      <div class="vtop"><span class="vno">03</span><span class="vtags">dom + canvas</span><span class="vdur">松弛指针</span></div>
+      <h3>指针是一根会晃的绳子。</h3>
+      <p class="vwhat">两端都在正确位置，中间 300 段拒绝成直线</p>
+      <p class="vhow">24 节跟随链 · 可抓取 · 可甩</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a>
+    <a class="vcard" href="m04-press-stack.html">
+      <div class="vtop"><span class="vno">04</span><span class="vtags">dom + css</span><span class="vdur">粘性堆叠</span></div>
+      <h3>原生滚动，屏与屏互相压上去。</h3>
+      <p class="vwhat">原生滚动，每屏钉住，下一屏压上来</p>
+      <p class="vhow">position: sticky · 进度反算</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a>
+    <a class="vcard" href="m05-wheel-rail.html">
+      <div class="vtop"><span class="vno">05</span><span class="vtags">dom + css</span><span class="vdur">滚轮轨道</span></div>
+      <h3>滚轮被劫持，文档一步没动。</h3>
+      <p class="vwhat">文档一步没动，轨道平移了</p>
+      <p class="vhow">劫持滚轮 · 1−exp(−k·dt) · 三层视差</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a>
+    <a class="vcard" href="m06-toy-flipbook.html">
+      <div class="vtop"><span class="vno">06</span><span class="vtags">rAF + 预渲染</span><span class="vdur">翻页动画</span></div>
+      <h3>用鼠标转动的翻页动画。</h3>
+      <p class="vwhat">4 张预渲染姿态，12Hz 硬切</p>
+      <p class="vhow">停格时钟 · 角速度 · 撞击 squash</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a>
+    <a class="vcard" href="m07-ink-crowd.html">
+      <div class="vtop"><span class="vno">07</span><span class="vtags">webgl2（本页 canvas 2d 近似）</span><span class="vdur">手绘 3D</span></div>
+      <h3>把「手绘 3D」画成它自己讲的样子。</h3>
+      <p class="vwhat">只在深度断点描边，11Hz 沸腾</p>
+      <p class="vhow">胶囊骨架 · 二值调色板 · 颗粒</p>
+      <span class="vgo">进入演示 + 提示词 →</span>
+    </a></div>
+
+  <div class="crosslink">
+    <a href="../index.html"><b>工作区总入口：两套形态对照表</b>点击进入 · 22 个素材 × App / HTML 两种打开方式</a>
+    <a href="../app/index.html"><b>应用形态：22 个素材的「素材库」App</b>点击进入 · 搜索 / 筛选 / 并排对比 / 复制提示词</a>
+    <a href="../video-demos/index.html"><b>另一套：9 个 UI 设计视频的对比演示</b>点击进入 · 组件选型 / 浮层 / 热区 / 国际化</a>
+    <a href="../glass-demos/index.html"><b>再一套：液态玻璃（liquid-glass-studio）6 个案例</b>点击进入 · 折射 / 色散 / 菲涅尔 / 眩光 / SDF / 4-pass</a>
+    <a href="https://github.com/feitangyuan/motion-web" target="_blank" rel="noopener"><b>原始仓库（CC BY-NC 4.0）</b>机制、实测参数与自动化验证判据都在 README 里</a>
+  </div>
+
+  <div class="foot">
+    <b>说明</b>：演示是按各案例 README 公开的机制与实测参数做的原生复现，代码为重新实现，视觉细节经过简化；原案例的许可证为 CC BY-NC 4.0（禁止商用），如果你要商用请自行替换为自己的实现。<br>
+    <b>提示词用法</b>：进入任意案例页 → 右侧勾选变更要求或补一句自定义要求 → 「一键复制提示词」→ 贴给 AI 编码工具。
+  </div>
+</main>
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+})();
+</script>
+</body>
+</html>

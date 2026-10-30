@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>把 4 个 pass 一层层剥开 · 液态玻璃演示</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+:root{
+  --bg:#f4f3ef; --card:#fcfcfa; --card-2:#f0efea; --card-3:#e8e7e1;
+  --ink:#1a1a18; --ink-2:#58574f; --ink-3:#8b8a82;
+  --line:rgba(26,26,24,.08); --line-2:rgba(26,26,24,.15);
+  --violet:#5b4ed6; --violet-2:rgba(91,78,214,.10); --violet-3:rgba(91,78,214,.28);
+  --teal:#0e8f80; --teal-2:rgba(14,143,128,.10); --teal-3:rgba(14,143,128,.30);
+  --red:#cf463a; --red-2:rgba(207,70,58,.10); --red-3:rgba(207,70,58,.30);
+  --amber:#9a6b12; --amber-2:rgba(154,107,18,.12);
+  --r:18px; --r2:13px; --r3:9px;
+  --sh:0 1px 2px rgba(20,20,18,.04),0 8px 24px rgba(20,20,18,.055);
+  --sh2:0 18px 50px rgba(20,20,18,.16),0 2px 8px rgba(20,20,18,.07);
+  --ease:cubic-bezier(.215,.61,.355,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+[data-theme="dark"]{
+  --bg:#0d0d0c; --card:#151515; --card-2:#1a1a19; --card-3:#22221f;
+  --ink:#ececea; --ink-2:#a8a7a2; --ink-3:#7c7b73;
+  --line:rgba(255,255,255,.075); --line-2:rgba(255,255,255,.14);
+  --violet:#9d90ff; --violet-2:rgba(157,144,255,.14); --violet-3:rgba(157,144,255,.32);
+  --teal:#41cbb6; --teal-2:rgba(65,203,182,.13); --teal-3:rgba(65,203,182,.30);
+  --red:#f08174; --red-2:rgba(240,129,116,.13); --red-3:rgba(240,129,116,.30);
+  --amber:#e2b25c; --amber-2:rgba(226,178,92,.13);
+  --sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --sh2:0 20px 56px rgba(0,0,0,.6),0 2px 10px rgba(0,0,0,.45);
+}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Segoe UI','PingFang SC','Hiragino Sans GB','Noto Sans SC','Microsoft YaHei',system-ui,sans-serif;
+  font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums; transition:background .35s var(--ease),color .35s var(--ease);
+  text-wrap:pretty;
+}
+::selection{background:var(--violet-2)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+a{color:inherit}
+h1,h2,h3,h4{line-height:1.35;letter-spacing:-.018em;font-weight:600}
+p{margin:0}
+svg{display:block}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+/* topbar */
+.topbar{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--line);
+  background:color-mix(in srgb,var(--bg) 84%,transparent);
+  backdrop-filter:saturate(180%) blur(18px);-webkit-backdrop-filter:saturate(180%) blur(18px)}
+.topbar .wrap{display:flex;align-items:center;gap:14px;height:60px}
+.back{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);
+  padding:7px 12px;border-radius:9px;background:var(--card-2);text-decoration:none;white-space:nowrap;
+  transition:background .2s var(--ease),color .2s var(--ease)}
+.back:hover{background:var(--card-3);color:var(--ink)}
+.tb-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tb-title b{color:var(--ink);font-weight:600}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.iconbtn{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+  background:var(--card-2);color:var(--ink-2);transition:background .2s var(--ease),color .2s var(--ease)}
+.iconbtn:hover{background:var(--card-3);color:var(--ink)}
+.pill{font-size:11.5px;padding:5px 10px;border-radius:7px;background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+
+/* hero */
+main{padding:36px 0 80px}
+.hero{padding-bottom:6px}
+.kicker{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+  font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kicker::before{content:"";width:16px;height:1px;background:var(--line-2)}
+h1.title{font-size:clamp(25px,3.4vw,36px);letter-spacing:-.035em;margin:12px 0 10px;font-weight:600}
+.lede{color:var(--ink-2);font-size:15px;max-width:70ch}
+.metas{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.metas .pill.v{background:var(--violet-2);color:var(--violet)}
+.metas .pill.t{background:var(--teal-2);color:var(--teal)}
+.quote{margin-top:20px;padding:18px 20px;border-radius:var(--r);
+  background:linear-gradient(115deg,var(--violet-2),transparent 45%,var(--teal-2));
+  box-shadow:inset 0 0 0 1px var(--line);font-size:15px;font-weight:500;letter-spacing:-.01em}
+.quote small{display:block;margin-top:7px;font-size:12px;color:var(--ink-3);font-weight:400;letter-spacing:0}
+
+/* demo block */
+.demo{margin-top:34px}
+.demo-head{display:flex;gap:13px;align-items:flex-start;margin-bottom:14px}
+.dnum{font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--ink-3);
+  background:var(--card-2);padding:5px 8px;border-radius:7px;flex:0 0 auto;margin-top:3px}
+.demo-head h2{font-size:18px;letter-spacing:-.02em}
+.demo-head p{font-size:13px;color:var(--ink-2);margin-top:4px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pane{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);
+  display:flex;flex-direction:column;min-width:0}
+.pane.bad{box-shadow:inset 0 0 0 1px var(--red-3),var(--sh)}
+.pane.good{box-shadow:inset 0 0 0 1px var(--teal-3),var(--sh)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;line-height:1;padding:5px 9px;border-radius:7px;
+  background:var(--card-2);color:var(--ink-2);white-space:nowrap}
+.tag.no{background:var(--red-2);color:var(--red)}
+.tag.ok{background:var(--teal-2);color:var(--teal)}
+.tag.v{background:var(--violet-2);color:var(--violet)}
+.tag.w{background:var(--amber-2);color:var(--amber)}
+.stage{background:var(--card-2);border-radius:var(--r2);padding:16px;position:relative;
+  display:flex;flex-direction:column;justify-content:center;gap:12px;min-height:104px;overflow:hidden}
+.stage.tall{min-height:210px}
+.stage > .btn,.stage > .seg,.stage > .switch,.stage > a.btn{align-self:flex-start}
+.stage > .field{align-self:stretch}
+.stage.plain{background:transparent;padding:0}
+.note{font-size:12px;color:var(--ink-3);margin-top:12px;line-height:1.6;display:flex;gap:6px;align-items:flex-start}
+.note::before{content:"↳";opacity:.7;flex:0 0 auto}
+.note b{color:var(--ink-2);font-weight:600}
+.count{font-size:11.5px;color:var(--ink-3);background:var(--card-2);padding:4px 9px;border-radius:7px;white-space:nowrap}
+
+/* controls */
+.btn{padding:9px 15px;border-radius:10px;font-size:13px;background:var(--card-3);color:var(--ink);
+  transition:transform .12s var(--ease),background .18s var(--ease),opacity .18s var(--ease)}
+.btn:hover{background:color-mix(in srgb,var(--card-3) 72%,var(--ink) 7%)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--teal);color:#fff}
+[data-theme="dark"] .btn.primary{color:#06211d}
+.btn.danger{background:var(--red-2);color:var(--red)}
+.btn.sm{padding:6px 11px;font-size:12px}
+.btn.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--line-2);color:var(--ink-2)}
+.row{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--card-3);gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 12px;border-radius:8px;font-size:12.5px;color:var(--ink-2);transition:all .2s var(--ease)}
+.seg button[aria-selected="true"]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(20,20,18,.12)}
+input[type="range"]{-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+  background:var(--line-2);outline:none;width:100%}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+  background:var(--card);box-shadow:0 0 0 1.5px var(--teal),0 2px 6px rgba(0,0,0,.2);cursor:pointer}
+.switch{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-2);cursor:pointer}
+.switch .track{width:40px;height:23px;border-radius:99px;background:var(--card-3);position:relative;
+  transition:background .25s var(--ease);flex:0 0 auto}
+.switch .knob{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:var(--card);
+  box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .3s var(--spring)}
+.switch[aria-checked="true"] .track{background:var(--teal)}
+.switch[aria-checked="true"] .knob{transform:translateX(17px)}
+.field{width:100%;padding:10px 12px;border-radius:11px;border:0;background:var(--card);
+  font:inherit;font-size:13.5px;color:var(--ink);outline:none;
+  box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow .2s var(--ease)}
+.field:focus{box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+.field::placeholder{color:var(--ink-3)}
+
+/* notes list */
+.notes{margin-top:44px;padding-top:24px;border-top:1px solid var(--line)}
+.notes h2{font-size:16px;margin-bottom:14px}
+.nlist{display:grid;gap:9px;font-size:13.5px;color:var(--ink-2)}
+.nlist li{list-style:none;display:grid;grid-template-columns:15px 1fr;gap:8px;line-height:1.7}
+.nlist li::before{content:"·";color:var(--ink-3);font-weight:700}
+.nlist b{color:var(--ink);font-weight:600}
+ul.nlist{margin:0;padding:0}
+
+/* foot nav */
+.pager{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.pager a{flex:1;min-width:200px;text-decoration:none;background:var(--card);border-radius:var(--r2);
+  padding:14px 16px;box-shadow:var(--sh);transition:transform .2s var(--ease),box-shadow .2s var(--ease)}
+.pager a:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.pager .k{font-size:11px;color:var(--ink-3);letter-spacing:.05em}
+.pager .t{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--ink)}
+.pager a.next{text-align:right}
+footer.foot{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.8}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);z-index:200;
+  padding:10px 17px;border-radius:11px;background:var(--ink);color:var(--bg);font-size:13px;
+  box-shadow:var(--sh2);opacity:0;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .3s var(--ease);display:flex;align-items:center;gap:8px;max-width:88vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:880px){
+  .split{grid-template-columns:1fr}
+  .tb-title{display:none}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  main{padding:24px 0 56px}
+  .stage{padding:13px}
+  .pane{padding:13px}
+}
+
+
+/* ============ motion 专用 ============ */
+.casebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px;font-size:12px;color:var(--ink-3)}
+.casebar a{text-decoration:none;color:var(--ink-2);background:var(--card-2);padding:5px 10px;border-radius:7px}
+.casebar a:hover{color:var(--ink);background:var(--card-3)}
+.stagewrap{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:14px;margin-top:16px}
+.stagebar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.stagebar .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.readout{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;letter-spacing:.06em;
+  color:var(--ink-3);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.readout b{color:var(--ink);font-weight:600}
+.readout .sep{opacity:.45}
+.canvasbox{position:relative;border-radius:14px;overflow:hidden;background:var(--paper,#fff);
+  box-shadow:inset 0 0 0 1px var(--line);touch-action:none;cursor:crosshair}
+.canvasbox canvas{display:block;width:100%;height:auto}
+.hint{font-size:12px;color:var(--ink-3);margin-top:10px;display:flex;gap:6px;align-items:flex-start}
+.hint::before{content:"↳";opacity:.7}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+
+/* 提示词面板 */
+.prompt{margin-top:34px;border-radius:var(--r);background:var(--card);box-shadow:var(--sh);overflow:hidden}
+.prompt-h{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.prompt-h h2{font-size:15.5px}
+.prompt-h .pill{font-size:11px;padding:4px 9px;border-radius:6px;background:var(--card-2);color:var(--ink-3)}
+.prompt-body{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.pcol{padding:17px 18px;min-width:0}
+.pcol + .pcol{border-left:1px solid var(--line)}
+.pcol h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:11px;font-weight:600}
+.kv{display:grid;gap:7px;font-size:12.5px;color:var(--ink-2);line-height:1.65}
+.kv div{display:grid;grid-template-columns:64px 1fr;gap:9px}
+.kv .k{color:var(--ink-3)}
+.kv .v{color:var(--ink)}
+.reqs{display:grid;gap:8px}
+.req{display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:var(--ink-2);cursor:pointer;line-height:1.55}
+.req input{appearance:none;-webkit-appearance:none;width:15px;height:15px;border-radius:4px;margin-top:2px;flex:0 0 auto;
+  box-shadow:inset 0 0 0 1.5px var(--line-2);background:var(--card);cursor:pointer;position:relative}
+.req input:checked{background:var(--teal);box-shadow:inset 0 0 0 1.5px var(--teal)}
+.req input:checked::after{content:"";position:absolute;left:4px;top:1px;width:4px;height:8px;
+  border:2px solid #fff;border-top:0;border-left:0;transform:rotate(42deg)}
+.req b{color:var(--ink);font-weight:600}
+.prompt-foot{padding:0 18px 17px}
+textarea.custom{width:100%;min-height:56px;resize:vertical;padding:10px 12px;border-radius:10px;border:0;
+  background:var(--card-2);font:inherit;font-size:12.5px;color:var(--ink);outline:none;line-height:1.6;
+  box-shadow:inset 0 0 0 1px transparent}
+textarea.custom:focus{background:var(--card);box-shadow:inset 0 0 0 1.5px var(--teal),0 0 0 4px var(--teal-2)}
+textarea.custom::placeholder{color:var(--ink-3)}
+.prompt-out{margin-top:14px;position:relative}
+pre.pcode{margin:0;padding:15px 16px;border-radius:12px;background:var(--card-2);color:var(--ink-2);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.8px;line-height:1.8;
+  white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto}
+.copybar{display:flex;align-items:center;gap:10px;margin-top:11px;flex-wrap:wrap}
+.copy-main{padding:9px 16px;border-radius:10px;background:var(--teal);color:#fff;font-size:13px;font-weight:600}
+[data-theme="dark"] .copy-main{color:#06211d}
+.copy-main:hover{background:color-mix(in srgb,var(--teal) 86%, #000)}
+.copy-main.done{background:var(--ok,#2c7a5b)}
+.copy-tip{font-size:11.5px;color:var(--ink-3)}
+.notes2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+.notes2 .card2{background:var(--card);border-radius:var(--r2);padding:16px 18px;box-shadow:var(--sh)}
+.notes2 h3{font-size:13.5px;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.notes2 h3 .dotm{width:7px;height:7px;border-radius:50%;display:block}
+.notes2 ul{margin:0;padding:0;display:grid;gap:8px;font-size:12.8px;color:var(--ink-2);line-height:1.7}
+.notes2 li{list-style:none;display:grid;grid-template-columns:13px 1fr;gap:7px}
+.notes2 li::before{content:"·";color:var(--ink-3);font-weight:700}
+.notes2 b{color:var(--ink);font-weight:600}
+@media (max-width:900px){
+  .prompt-body{grid-template-columns:1fr}
+  .pcol + .pcol{border-left:0;border-top:1px solid var(--line)}
+  .notes2{grid-template-columns:1fr}
+}
+
+
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cell{background:var(--card);border-radius:var(--r2);padding:10px;box-shadow:var(--sh);min-width:0}
+.cell-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;font-size:11.5px;color:var(--ink-3)}
+.cell-h b{color:var(--ink);font-size:12px;font-weight:600}
+.gcanvas{position:relative;border-radius:11px;overflow:hidden;background:#0a0c14;box-shadow:inset 0 0 0 1px var(--line)}
+.gcanvas canvas{display:block;width:100%;height:320px;touch-action:none;cursor:crosshair}
+.gcanvas.short canvas{height:210px}
+.gcanvas.tall canvas{height:420px}
+.ctl{margin-top:14px;background:var(--card);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--sh)}
+.ctl-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px 20px}
+.sl{display:grid;gap:5px}
+.sl .lab{display:flex;align-items:baseline;justify-content:space-between;font-size:12px;color:var(--ink-2)}
+.sl .lab b{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;color:var(--ink);font-weight:600}
+.sl input[type="range"]{width:100%}
+.togrow{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:12px}
+@media (max-width:760px){
+  .pair{grid-template-columns:1fr}
+  .gcanvas canvas{height:260px}
+  .ctl-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:460px){.ctl-grid{grid-template-columns:1fr}}
+.gcanvas.nowebgl::after{content:"此浏览器不支持 WebGL2";position:absolute;inset:0;display:grid;place-items:center;
+  font-size:12.5px;color:#fff;background:rgba(0,0,0,.6)}
+
+
+.steps{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:9px}
+.steps button{padding:7px 4px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink-3);
+  font-size:10.5px;line-height:1.25;cursor:pointer;font-family:ui-monospace,Menlo,monospace}
+.steps button span{font-family:inherit;font-size:10px}
+.steps button[aria-selected="true"]{background:var(--ink);color:#fff;border-color:transparent}
+@media(max-width:760px){.steps{grid-template-columns:repeat(4,1fr)}}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M10 3 5 8l5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      全部演示
+    </a>
+    <div class="tb-title">06 · <b>渲染步骤查看</b></div>
+    <div class="tb-right">
+      <span class="pill">webgl2 · STEP 0–7</span>
+      <a class="pill" href="https://github.com/iyinchao/liquid-glass-studio" target="_blank" rel="noopener" style="text-decoration:none">源码 ↗</a>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深浅色">
+        <svg id="iconMoon" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <svg id="iconSun" style="display:none" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker">liquid-glass-studio · 06 · webgl2 · STEP 0–7</div>
+    <h1 class="title">把 4 个 pass 一层层剥开</h1>
+    <p class="lede">原项目最值得抄的不是玻璃，而是这个面板：STEP 按钮把管线切成 8 个可观察的中间态——原始背景、纵向模糊、横向模糊、SDF、法线、边缘因子、菲涅尔+眩光、最终合成。它把「黑盒 shader」变成可检查的流水线。</p>
+    <div class="quote">「能看见中间步骤的渲染器，才调得动参数。」<small>STEP 0–7 设计</small></div>
+    <div class="casebar">
+      <span>参考项目</span>
+      <a href="https://github.com/iyinchao/liquid-glass-studio" target="_blank" rel="noopener">iyinchao/liquid-glass-studio</a>
+      <a href="https://github.com/iyinchao/liquid-glass-studio" target="_blank" rel="noopener">src/components/StepViewer</a>
+      <span style="color:var(--ink-3)">原参考：项目自带的 STEP 0–7 渲染步骤面板</span>
+    </div>
+  </section>
+
+
+  <section class="stagewrap">
+    <div class="stagebar">
+      <span class="lbl">liquid-glass · case 06 · step viewer</span>
+      <div class="readout"><b id="r6a">STEP 7 · 最终合成</b><span class="sep">·</span><span>pass <b id="r6b">4 / 4</b></span></div>
+    </div>
+    <div class="cell" style="padding:10px">
+      <div class="gcanvas tall"><canvas id="cS"></canvas></div>
+      <div class="steps" id="steps6">
+        <button data-d="10">0<br><span>背景</span></button>
+        <button data-d="11">1<br><span>纵向模糊</span></button>
+        <button data-d="12">2<br><span>横向模糊</span></button>
+        <button data-d="1">3<br><span>SDF</span></button>
+        <button data-d="2">4<br><span>法线</span></button>
+        <button data-d="3">5<br><span>边缘因子</span></button>
+        <button data-d="6">6<br><span>菲涅尔+眩光</span></button>
+        <button data-d="0" aria-selected="true">7<br><span>最终</span></button>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-grid">
+        <label class="sl"><span class="lab">播放速度 <b id="s-sp-v">1.0×</b></span>
+          <input type="range" id="s-sp" min="0.2" max="3" step="0.1" value="1"></label>
+        <label class="sl"><span class="lab">背景模式 <b id="s-bm-v">色斑</b></span>
+          <input type="range" id="s-bm" min="0" max="1" step="1" value="0"></label>
+      </div>
+      <div class="togrow">
+        <button class="btn sm" id="b6play">自动播放步骤</button>
+        <button class="btn sm ghost" id="b6prev">上一步</button>
+        <button class="btn sm ghost" id="b6next">下一步</button>
+      </div>
+    </div>
+    <p class="hint">STEP 0–2 是「纹理流」，STEP 3–6 是「几何量」，STEP 7 才把它们乘在一起。看一遍就知道每个参数到底作用在哪一层。</p>
+  </section>
+
+
+
+  <section class="prompt">
+    <div class="prompt-h">
+      <h2>生成提示词</h2>
+      <span class="pill">参考项目 + 变更要求 → 一键复制</span>
+    </div>
+    <div class="prompt-body">
+      <div class="pcol">
+        <h3>01 · 参考项目</h3>
+        <div class="kv">
+          <div><span class="k">项目</span><span class="v">iyinchao/liquid-glass-studio（MIT）</span></div>
+          <div><span class="k">案例</span><span class="v">StepViewer · 渲染步骤查看</span></div>
+          <div><span class="k">机制</span><span class="v">同一套 4-pass 管线，每个 pass 结束后把中间纹理按 debug 值直接输出到屏幕；主合成 pass 用 uniform 选择输出哪一项中间量。</span></div>
+          <div><span class="k">关键参数</span><span class="v">STEP 0 背景 · 1 纵向模糊 · 2 横向模糊 · 3 SDF · 4 法线 · 5 边缘因子 · 6 菲涅尔+眩光 · 7 最终</span></div>
+          <div><span class="k">判据</span><span class="v">每个 STEP 必须来自真实中间纹理（不是重新计算一遍），且 STEP 7 必须与正常渲染逐像素一致</span></div>
+        </div>
+      </div>
+      <div class="pcol">
+        <h3>02 · 变更要求（可勾选 / 可自写）</h3>
+        <div class="reqs"><label class="req"><input type="checkbox" data-req="改成深色背景，玻璃整体压暗一档"><span>改成深色背景，玻璃整体压暗一档</span></label><label class="req"><input type="checkbox" data-req="做成可直接复用的卡片组件（含 3 个图标按钮）"><span>做成可直接复用的卡片组件（含 3 个图标按钮）</span></label><label class="req"><input type="checkbox" data-req="加移动端适配：390px 竖屏下单列、画布高度 260px"><span>加移动端适配：390px 竖屏下单列、画布高度 260px</span></label><label class="req"><input type="checkbox" data-req="加「八宫格」模式：一次并排显示全部 8 个步骤"><span>加「八宫格」模式：一次并排显示全部 8 个步骤</span></label><label class="req"><input type="checkbox" data-req="参数面板收成 3 组预设（清透 / 磨砂 / 浓彩）"><span>参数面板收成 3 组预设（清透 / 磨砂 / 浓彩）</span></label><label class="req"><input type="checkbox" data-req="加一个「导出当前画布为 PNG」按钮"><span>加一个「导出当前画布为 PNG」按钮</span></label></div>
+        <div style="margin-top:12px">
+          <textarea class="custom" id="promptCustom" placeholder="再补一句你的要求，例如：做成 iOS 深色导航栏、玻璃上放 3 个图标按钮……"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="prompt-foot">
+      <div class="prompt-out">
+        <pre class="pcode" id="promptBase">做一个单文件 HTML（WebGL2），实现一个液态玻璃的「渲染步骤查看器」：同一套 4-pass 管线，把每个中间态都能单独显示出来。
+
+【管线】
+1) pass 1：程序化背景 → texBG。
+2) pass 2：texBG 纵向高斯 → texV。
+3) pass 3：texV 横向高斯 → texH。
+4) pass 4：主合成，同时采样 texBG 与 texH，输出 SDF / 法线 / 边缘因子 / 菲涅尔 / 眩光 的具体贡献。
+
+【STEP 0–7 必须对应真实中间纹理或真实 uniform 分支】
+- STEP 0 原始背景：直接输出 texBG（不重算背景）。
+- STEP 1 纵向模糊：输出 texV。
+- STEP 2 横向模糊：输出 texH（此时画面应明显「横向拉丝后再糊」，与 STEP 1 肉眼可分辨）。
+- STEP 3 SDF：输出 clamp(-sdf/40, 0, 1) 的灰度，形状内部为白，并叠一条边缘等高线。
+- STEP 4 法线：输出 normal×0.5+0.5 的 RGB。
+- STEP 5 边缘因子：输出 edge 的灰度（中心必须为纯黑）。
+- STEP 6 菲涅尔+眩光：只输出这两项叠加的白色高光（黑底）。
+- STEP 7 最终：完整合成，必须与正常渲染逐像素一致。
+
+【交互】
+- 8 个 STEP 按钮，另加上一步/下一步/自动播放（速度 0.2×–3×，可调）。
+- 背景模式可在「色斑 / 条纹」之间切换，用来验证 STEP 1 与 STEP 2 的方向差异。
+- 玻璃继续跟随鼠标（spring），这样任何 STEP 下都能看到形状在动。
+- 显示当前是第几个 pass（1/4 … 4/4）。
+
+【自检标准】
+- STEP 1 与 STEP 2 必须能看出模糊方向不同（截图对比）；
+- STEP 5 中心为纯黑、边缘为亮环；
+- 自动播放到 STEP 7 时画面必须与默认渲染完全一致（做一个像素对比开关更好）。
+
+输出完整 HTML。</pre>
+        <pre class="pcode" id="promptOut" style="display:none"></pre>
+      </div>
+      <div class="copybar">
+        <button class="copy-main" id="copyPrompt">一键复制提示词</button>
+        <span class="copy-tip">复制后直接贴给 AI 编码工具即可生成同款页面</span>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="notes2">
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--teal)"></span>可以照搬（机制层）</h3>
+      <ul><li><div><b>debug uniform 直出中间态</b>：一个 int 参数切换 8 种输出，不用 8 套 shader。</div></li><li><div><b>STEP 分两类</b>：纹理流（0–2）与几何量（3–6），这个分类本身就能教会读者管线结构。</div></li><li><div><b>自动播放 + 速度控制</b>：静态截图讲不清「顺序」，播放可以。</div></li><li><div><b>pass 计数读数</b>：随时知道自己站在管线的哪一层。</div></li></ul>
+    </div>
+    <div class="card2">
+      <h3><span class="dotm" style="background:var(--red)"></span>不许照搬（皮层）</h3>
+      <ul><li><div><b>它的 STEP 具体配色</b>：灰度/SDF 着色是调试惯例，不必照抄色阶。</div></li><li><div><b>背景素材</b>：原项目可以传图和视频，这里必须程序化生成。</div></li><li><div><b>面板 UI 布局</b>：可迁移的是「8 个正交切面」，不是那排按钮的样子。</div></li></ul>
+    </div>
+  </section>
+
+  <nav class="pager"><a href="l05-spring-follow.html"><div class="k">← 上一页 · 05</div><div class="t">弹簧跟随</div></a><a class="next" href="index.html"><div class="k">看完了 →</div><div class="t">返回目录</div></a></nav>
+
+  <footer class="foot">
+    <b>关于本页</b>：这是按 liquid-glass-studio 实际使用的着色器结构与默认参数做的复现（WebGL2 · 4 pass：背景 → 纵向模糊 → 横向模糊 → 主合成），代码为重新实现；原项目的参数范围与默认值取自其 <code>src/Controls.tsx</code>，判据取自其 <code>openspec/specs</code>。<br>
+    <b>提示词</b>：勾选「变更要求」会自动拼进下方 prompt，可直接复制给任意 AI 编码工具。
+  </footer>
+</main>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="m3 8.5 3.5 3.5L13 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  var moon=document.getElementById('iconMoon'), sun=document.getElementById('iconSun');
+  btn.addEventListener('click',function(){
+    var dark=root.dataset.theme==='dark';
+    root.dataset.theme=dark?'light':'dark';
+    moon.style.display=dark?'':'none'; sun.style.display=dark?'none':'';
+  });
+  var t=document.getElementById('toast'), tx=document.getElementById('toastText'), tm;
+  window.toast=function(msg){
+    tx.textContent=msg; t.classList.add('show');
+    clearTimeout(tm); tm=setTimeout(function(){t.classList.remove('show');},2200);
+  };
+  var base = document.getElementById('promptBase').textContent;
+  var out  = document.getElementById('promptOut');
+  var boxes= document.querySelectorAll('.req input');
+  var custom=document.getElementById('promptCustom');
+  function build(){
+    var lines=[base.trim()], picked=[];
+    boxes.forEach(function(b){ if(b.checked) picked.push('- '+b.dataset.req); });
+    if(picked.length) lines.push('\n【变更要求】\n'+picked.join('\n'));
+    if(custom.value.trim()) lines.push('\n【自定义要求】\n'+custom.value.trim());
+    out.textContent=lines.join('\n');
+  }
+  boxes.forEach(function(b){ b.addEventListener('change',build); });
+  custom.addEventListener('input',build);
+  build();
+  document.getElementById('copyPrompt').addEventListener('click',function(){
+    var text=out.textContent, b2=this;
+    function done(){ b2.classList.add('done'); var o=b2.textContent; b2.textContent='已复制 ✓';
+      setTimeout(function(){ b2.classList.remove('done'); b2.textContent=o; },1800); }
+    function fb(){
+      var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){ toast('请手动选择文本复制'); }
+      document.body.removeChild(ta);
+    }
+    if(window.AndroidBridge&&window.AndroidBridge.copy){ try{ window.AndroidBridge.copy(text); done(); return; }catch(e){} }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done).catch(fb); }
+    else { fb(); }
+  });
+})();
+</script>
+<script>
+
+(function(){
+  var VS = `#version 300 es
+  in vec2 a_pos;
+  void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }`;
+
+  /* ---------- pass 1：程序化背景 ---------- */
+  var BG_FS = `#version 300 es
+  precision highp float;
+  out vec4 o;
+  uniform vec2 u_res;
+  uniform float u_time;
+  uniform int u_bgMode;
+  vec3 bg(vec2 uv){
+    vec2 p = uv;
+    vec3 c;
+    if(u_bgMode==0){
+      c = mix(vec3(0.055,0.075,0.145), vec3(0.115,0.155,0.265), clamp(p.y,0.0,1.0));
+      c += vec3(0.62,0.28,0.98) * (1.0-smoothstep(0.0,0.62,length((p-vec2(0.24,0.30))*vec2(1.55,1.0)))) * 0.85;
+      c += vec3(0.08,0.74,0.80) * (1.0-smoothstep(0.0,0.58,length((p-vec2(0.80,0.34))*vec2(1.55,1.0)))) * 0.78;
+      c += vec3(1.00,0.52,0.22) * (1.0-smoothstep(0.0,0.56,length((p-vec2(0.56,0.88))*vec2(1.55,1.0)))) * 0.70;
+      vec2 g = abs(fract(p*vec2(23.0,13.0))-0.5);
+      float line = smoothstep(0.455,0.5,max(g.x,g.y));
+      c = mix(c, vec3(0.93,0.96,1.0), line*0.20);
+    } else {
+      /* 横向色带：最容易看出折射与色散 */
+      float band = sin((p.x*7.0 + p.y*2.5)*3.14159)*0.5+0.5;
+      vec3 a = vec3(0.10,0.12,0.30), b = vec3(0.95,0.45,0.60), d = vec3(0.20,0.85,0.70);
+      c = mix(a,b,band);
+      c = mix(c,d, smoothstep(0.25,0.95,p.y));
+      vec2 g = abs(fract(p*vec2(30.0,17.0))-0.5);
+      c = mix(c, vec3(1.0), smoothstep(0.47,0.5,max(g.x,g.y))*0.16);
+    }
+    return c;
+  }
+  void main(){ vec2 uv = gl_FragCoord.xy/u_res; o = vec4(bg(uv),1.0); }`;
+
+  /* ---------- pass 2/3：可分离高斯模糊 ---------- */
+  var BLUR_FS = `#version 300 es
+  precision highp float;
+  out vec4 o;
+  uniform sampler2D u_src;
+  uniform vec2 u_res;
+  uniform vec2 u_dir;
+  uniform float u_radius;
+  void main(){
+    vec2 uv = gl_FragCoord.xy/u_res;
+    float r = max(u_radius, 0.001);
+    float sigma = max(r/3.0, 0.0001);
+    vec3 acc = texture(u_src, uv).rgb;
+    float wsum = 1.0;
+    for(int i=1;i<=5;i++){
+      float fi = float(i);
+      float step_px = r/5.0;
+      float w = exp(-0.5*pow(fi*step_px,2.0)/(sigma*sigma));
+      vec2 off = u_dir * fi * step_px / u_res;
+      acc += texture(u_src, uv+off).rgb * w;
+      acc += texture(u_src, uv-off).rgb * w;
+      wsum += w*2.0;
+    }
+    o = vec4(acc/wsum, 1.0);
+  }`;
+
+  /* ---------- pass 4：主合成 ---------- */
+  var MAIN_FS = `#version 300 es
+  precision highp float;
+  out vec4 o;
+  uniform sampler2D u_bg;
+  uniform sampler2D u_blur;
+  uniform sampler2D u_vblur;
+  uniform vec2 u_res;
+  uniform float u_dpr;
+  uniform vec2 u_blob;
+  uniform int u_showBlob;
+  uniform float u_shapeW, u_shapeH, u_radius, u_roundness, u_merge;
+  uniform float u_thick, u_refDist, u_refFactor, u_disp;
+  uniform float u_fresRange, u_fresHard, u_fresFactor;
+  uniform float u_glareRange, u_glareHard, u_glareFactor, u_glareConv, u_glareOpp, u_glareAngle;
+  uniform float u_blurR;
+  uniform int u_blurEdge;
+  uniform vec4 u_tint;
+  uniform float u_shExpand, u_shFactor;
+  uniform vec2 u_shPos;
+  uniform int u_debug;
+  uniform float u_rim;
+  uniform float u_time;
+
+  float seCorner(vec2 p, float r, float n){
+    p = abs(p);
+    return pow(pow(p.x,n) + pow(p.y,n), 1.0/n) - r;
+  }
+  float sdRR(vec2 p, vec2 h, float r, float n){
+    r = min(r, min(h.x,h.y));
+    vec2 d = abs(p) - h + r;
+    if(d.x > 0.0 && d.y > 0.0) return seCorner(d, r, n);
+    return min(max(d.x,d.y),0.0) + length(max(d,0.0)) - r;
+  }
+  float smin(float a, float b, float k){
+    if(k < 0.001) return min(a,b);
+    float h = clamp(0.5 + 0.5*(b-a)/k, 0.0, 1.0);
+    return mix(b,a,h) - k*h*(1.0-h);
+  }
+  float sd(vec2 p){
+    vec2 h = vec2(u_shapeW, u_shapeH) * u_dpr * 0.5;
+    float r = min(u_radius, min(u_shapeW,u_shapeH)*0.5) * u_dpr;
+    float d1 = sdRR(p, h, r, u_roundness);
+    if(u_showBlob == 0) return d1;
+    float d2 = length(p - u_blob) - 86.0*u_dpr;
+    return smin(d1, d2, u_merge*260.0*u_dpr);
+  }
+  vec2 nrm(vec2 p){
+    float e = 1.2;
+    vec2 g = vec2(sd(p+vec2(e,0.0)) - sd(p-vec2(e,0.0)),
+                  sd(p+vec2(0.0,e)) - sd(p-vec2(0.0,e)));
+    float l = length(g);
+    return l < 1e-5 ? vec2(0.0,1.0) : g/l;
+  }
+  void main(){
+    vec2 p = gl_FragCoord.xy - u_res*0.5;
+    vec2 uv = gl_FragCoord.xy/u_res;
+    float d = sd(p);
+    float nd = -d;
+    vec2 n = nrm(p);
+
+    /* --- 边缘因子（Snell） --- */
+    float thick = max(u_thick,1.0) * 1.1 * u_dpr;
+    float xr = clamp(1.0 - nd/thick, 0.0, 1.0);
+    float thI = asin(clamp(pow(xr,2.0),0.0,1.0));
+    float thT = asin(clamp(sin(thI)/max(u_refFactor,1.0001), -1.0, 1.0));
+    float edge = max(-tan(thT-thI), 0.0);
+    if(nd >= thick) edge = 0.0;
+    if(d >= 0.0) edge = 0.0;
+
+    /* --- 色散：RGB 三个折射率（N_R .98 / N_G 1.0 / N_B 1.02） --- */
+    float dg = u_disp/25.0;
+    float eR = edge*(1.0 + 0.02*dg);
+    float eG = edge;
+    float eB = edge*(1.0 - 0.02*dg);
+    vec2 k = n * u_refDist * 220.0 * u_dpr / u_res;
+    vec2 oR = k*eR, oG = k*eG, oB = k*eB;
+
+    vec3 sharp = texture(u_bg, uv).rgb;
+    vec3 sharpR = vec3(texture(u_bg,uv+oR).r, texture(u_bg,uv+oG).g, texture(u_bg,uv+oB).b);
+    vec3 blur = vec3(texture(u_blur,uv+oR).r, texture(u_blur,uv+oG).g, texture(u_blur,uv+oB).b);
+
+    float bm = (u_blurEdge==1) ? smoothstep(0.0, thick*2.6, nd) : 1.0;
+    vec3 refr = mix(sharpR, blur, bm);
+
+    /* --- 菲涅尔 --- */
+    float fres = pow(clamp(1.0 - nd/max(u_fresRange*u_dpr,1.0) + u_fresHard/100.0, 0.0, 1.0), 5.0);
+    fres *= u_fresFactor/100.0;
+
+    /* --- 高光眩光（方向性） --- */
+    float ga = radians(u_glareAngle);
+    vec2 gdir = vec2(cos(ga), sin(ga));
+    float band = 1.0 - smoothstep(0.0, max(u_glareRange*u_dpr, 2.0), nd);
+    float lit = clamp(dot(n, gdir), 0.0, 1.0);
+    float crescent = pow(lit, mix(3.0, 0.6, u_glareHard/100.0));
+    crescent = mix(crescent, smoothstep(0.15,1.0,crescent), u_glareConv/100.0);
+    float glare = crescent * band * (u_glareFactor/100.0) * 0.70;
+    float farCres = pow(clamp(dot(n,-gdir),0.0,1.0), 9.0) * band * (u_glareOpp/100.0) * 0.22;
+
+    /* --- 阴影 --- */
+    float sdSh = sd(p - u_shPos*u_dpr);
+    float sh = (1.0 - smoothstep(0.0, max(u_shExpand*u_dpr,1.0), sdSh)) * (u_shFactor/100.0);
+
+    vec3 outside = sharp * (1.0 - sh*0.72);
+    vec3 inside = refr;
+    inside = mix(inside, u_tint.rgb, u_tint.a);
+    inside += vec3(1.0) * fres * 0.9;
+    inside += vec3(1.0) * glare + vec3(0.82,0.90,1.0) * farCres;
+    inside *= mix(0.90, 1.0, smoothstep(0.0, thick*0.85, nd));
+    float rim = 1.0 - smoothstep(0.15, 1.7, abs(d));
+    inside += vec3(0.94,0.97,1.0) * rim * 0.40 * u_rim;
+
+    vec3 col = (d < 0.0) ? inside : outside;
+
+    /* --- 渲染步骤查看 --- */
+    if(u_debug == 1){
+      float rings = 0.5 + 0.5*cos(nd*0.22);
+      col = (d<0.0) ? vec3(0.42,0.72,1.0)*rings*0.95
+                    : mix(vec3(0.98,0.80,0.45), vec3(0.30,0.22,0.18), 1.0-smoothstep(0.0,260.0,d));
+      col = mix(col, vec3(1.0), 1.0-smoothstep(0.8,1.8,abs(d)));
+    } else if(u_debug == 2){
+      col = (d<0.0) ? 0.5+0.5*vec3(n.x, n.y, 1.0-abs(n.x*n.y)) : vec3(0.80);
+    } else if(u_debug == 3){
+      col = vec3(edge*2.2);
+    } else if(u_debug == 4){
+      col = vec3(fres);
+    } else if(u_debug == 5){
+      col = vec3(glare + farCres);
+    } else if(u_debug == 6){
+      col = vec3(fres*0.9 + glare + farCres);
+    } else if(u_debug == 10){
+      col = texture(u_bg, uv).rgb;
+    } else if(u_debug == 11){
+      col = texture(u_vblur, uv).rgb;
+    } else if(u_debug == 12){
+      col = texture(u_blur, uv).rgb;
+    }
+    o = vec4(col, 1.0);
+  }`;
+
+  function compile(gl, type, src){
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+      console.error(gl.getShaderInfoLog(s)); return null;
+    }
+    return s;
+  }
+  function program(gl, fs){
+    var p = gl.createProgram();
+    var v = compile(gl, gl.VERTEX_SHADER, VS), f = compile(gl, gl.FRAGMENT_SHADER, fs);
+    if(!v || !f) return null;
+    gl.attachShader(p, v); gl.attachShader(p, f); gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)){ console.error(gl.getProgramInfoLog(p)); return null; }
+    return p;
+  }
+
+  var DEFAULTS = {
+    thick:20, refDist:0.05, refFactor:1.4, disp:7,
+    fresRange:30, fresHard:20, fresFactor:20,
+    glareRange:30, glareHard:20, glareFactor:90, glareConv:50, glareOpp:80, glareAngle:-45,
+    blurR:18, blurEdge:1,
+    tint:[1,1,1,0],
+    shExpand:25, shFactor:15, shPos:[0,-10],
+    shapeW:380, shapeH:240, radius:110, roundness:5, merge:0.06, showBlob:0,
+    debug:0, bgMode:0, rim:1,
+    follow:'spring', stiff:170, damp:14, sizeSpring:0.4, idle:true
+  };
+
+  var instances = [];
+  var raf = null, last = performance.now();
+
+  function make(canvas, opts){
+    var P = Object.assign({}, DEFAULTS, opts || {});
+    P.tint = (P.tint || [1,1,1,0]).slice();
+    P.shPos = (P.shPos || [0,-10]).slice();
+    var gl = canvas.getContext('webgl2', {antialias:false, alpha:false, premultipliedAlpha:false});
+    if(!gl){
+      canvas.parentNode.classList.add('nowebgl');
+      /* 返回一个空壳实例，页面上的滑杆/读数/动画循环都不会因为 null 抛错 */
+      return {P:Object.assign({}, DEFAULTS, opts||{}), gl:null, canvas:canvas, cv:canvas, dpr:1,
+              target:{x:0,y:0}, pos:{x:0,y:0}, vel:{x:0,y:0}, lag:0, moved:false, everMoved:false,
+              overshoot:0, t:0, step:function(){}, resize:function(){}};
+    }
+    var pBg = program(gl, BG_FS), pBlur = program(gl, BLUR_FS), pMain = program(gl, MAIN_FS);
+    if(!pBg || !pBlur || !pMain) return null;
+
+    var quad = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+
+    function bindQuad(prog){
+      var loc = gl.getAttribLocation(prog, 'a_pos');
+      gl.bindBuffer(gl.ARRAY_BUFFER, quad);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    }
+    function makeRT(w,h){
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      var fb = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return {tex:tex, fb:fb, w:w, h:h};
+    }
+    var rtBg = null, rtA = null, rtB = null, W = 0, H = 0;
+
+    var inst = {
+      P:P, gl:gl, canvas:canvas, cv:canvas,
+      target:{x:0,y:0}, pos:{x:0,y:0}, vel:{x:0,y:0},
+      lag:0, moved:false, everMoved:false, overshoot:0, t:0
+    };
+
+    function resize(){
+      var dpr = Math.min(window.devicePixelRatio||1, 1.6);
+      var r = canvas.getBoundingClientRect();
+      var w = Math.max(64, Math.round(r.width*dpr)), h = Math.max(64, Math.round(r.height*dpr));
+      if(w===W && h===H) return;
+      W = w; H = h;
+      canvas.width = w; canvas.height = h; inst.dpr = dpr;
+      [rtBg, rtA, rtB].forEach(function(rt){
+        if(rt){ gl.deleteTexture(rt.tex); gl.deleteFramebuffer(rt.fb); }
+      });
+      rtBg = makeRT(w,h); rtA = makeRT(w,h); rtB = makeRT(w,h);
+    }
+    inst.resize = resize; resize();
+
+    var ucache = new WeakMap();
+    function uloc(prog, name){
+      var m = ucache.get(prog);
+      if(!m){ m = {}; ucache.set(prog, m); }
+      if(!(name in m)) m[name] = gl.getUniformLocation(prog, name);
+      return m[name];
+    }
+
+    inst.step = function(dt, now){
+      P = inst.P;
+      resize();
+      var dpr = inst.dpr || 1;
+      /* 跟随 */
+      if(!inst.moved && P.idle){
+        if(inst.everMoved){
+          inst.target.x = 0; inst.target.y = 0;
+        } else {
+          inst.target.x = Math.cos(now*0.00042)*Math.min(150, W/dpr*0.18)*dpr;
+          inst.target.y = Math.sin(now*0.00061)*Math.min(90, H/dpr*0.16)*dpr;
+        }
+      }
+      var tg = inst.target;
+      if(P.follow === 'none'){
+        inst.pos.x = tg.x; inst.pos.y = tg.y;
+      } else if(P.follow === 'lerp'){
+        var k = 1 - Math.exp(-6*dt);
+        inst.pos.x += (tg.x-inst.pos.x)*k; inst.pos.y += (tg.y-inst.pos.y)*k;
+      } else {
+        var s = P.stiff, dmp = Math.exp(-P.damp*dt);
+        inst.vel.x += (tg.x-inst.pos.x)*s*dt; inst.vel.y += (tg.y-inst.pos.y)*s*dt;
+        inst.vel.x *= dmp; inst.vel.y *= dmp;
+        inst.pos.x += inst.vel.x*dt; inst.pos.y += inst.vel.y*dt;
+        var dx = tg.x-inst.pos.x, dy = tg.y-inst.pos.y;
+        if(inst.vel.x*dx + inst.vel.y*dy < 0){
+          inst.overshoot = Math.max(inst.overshoot, Math.hypot(dx,dy));
+        } else if(inst.overshoot > 0){
+          inst.overshoot *= Math.pow(0.985, dt*60);
+        }
+      }
+      inst.lag = Math.hypot(tg.x-inst.pos.x, tg.y-inst.pos.y);
+
+      /* pass 1 · 背景 */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, rtBg.fb);
+      gl.viewport(0,0,W,H);
+      gl.useProgram(pBg); bindQuad(pBg);
+      gl.uniform2f(uloc(pBg,'u_res'), W, H);
+      gl.uniform1f(uloc(pBg,'u_time'), now*0.001);
+      gl.uniform1i(uloc(pBg,'u_bgMode'), P.bgMode|0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      /* pass 2 · 纵向模糊 */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, rtA.fb);
+      gl.useProgram(pBlur); bindQuad(pBlur);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, rtBg.tex);
+      gl.uniform1i(uloc(pBlur,'u_src'), 0);
+      gl.uniform2f(uloc(pBlur,'u_res'), W, H);
+      gl.uniform2f(uloc(pBlur,'u_dir'), 0, 1);
+      gl.uniform1f(uloc(pBlur,'u_radius'), (P.blurR||0)*dpr);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      /* pass 3 · 横向模糊 */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, rtB.fb);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, rtA.tex);
+      gl.uniform2f(uloc(pBlur,'u_dir'), 1, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      /* pass 4 · 主合成 */
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0,0,W,H);
+      gl.useProgram(pMain); bindQuad(pMain);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, rtBg.tex);
+      gl.uniform1i(uloc(pMain,'u_bg'), 0);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, rtB.tex);
+      gl.uniform1i(uloc(pMain,'u_blur'), 1);
+      gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, rtA.tex);
+      gl.uniform1i(uloc(pMain,'u_vblur'), 2);
+      gl.uniform2f(uloc(pMain,'u_res'), W, H);
+      gl.uniform1f(uloc(pMain,'u_dpr'), dpr);
+      gl.uniform2f(uloc(pMain,'u_blob'), inst.pos.x, inst.pos.y);
+      gl.uniform1i(uloc(pMain,'u_showBlob'), P.showBlob|0);
+      var vm = Math.min(Math.hypot(inst.vel.x, inst.vel.y)/(dpr*260), 1);
+      var ssc = 1 + vm * (P.sizeSpring||0) * 0.10;
+      /* 形状按画布宽度自适应，窄屏（单列）不会把玻璃裁掉 */
+      var fit = Math.min(1, (W/dpr) / (P.shapeW + 140));
+      gl.uniform1f(uloc(pMain,'u_shapeW'), P.shapeW*ssc*fit);
+      gl.uniform1f(uloc(pMain,'u_shapeH'), P.shapeH*ssc*fit);
+      gl.uniform1f(uloc(pMain,'u_radius'), P.radius);
+      gl.uniform1f(uloc(pMain,'u_roundness'), P.roundness);
+      gl.uniform1f(uloc(pMain,'u_merge'), P.merge);
+      gl.uniform1f(uloc(pMain,'u_thick'), P.thick);
+      gl.uniform1f(uloc(pMain,'u_refDist'), P.refDist);
+      gl.uniform1f(uloc(pMain,'u_refFactor'), P.refFactor);
+      gl.uniform1f(uloc(pMain,'u_disp'), P.disp);
+      gl.uniform1f(uloc(pMain,'u_fresRange'), P.fresRange);
+      gl.uniform1f(uloc(pMain,'u_fresHard'), P.fresHard);
+      gl.uniform1f(uloc(pMain,'u_fresFactor'), P.fresFactor);
+      gl.uniform1f(uloc(pMain,'u_glareRange'), P.glareRange);
+      gl.uniform1f(uloc(pMain,'u_glareHard'), P.glareHard);
+      gl.uniform1f(uloc(pMain,'u_glareFactor'), P.glareFactor);
+      gl.uniform1f(uloc(pMain,'u_glareConv'), P.glareConv);
+      gl.uniform1f(uloc(pMain,'u_glareOpp'), P.glareOpp);
+      gl.uniform1f(uloc(pMain,'u_glareAngle'), P.glareAngle);
+      gl.uniform1f(uloc(pMain,'u_blurR'), P.blurR);
+      gl.uniform1i(uloc(pMain,'u_blurEdge'), P.blurEdge|0);
+      gl.uniform4f(uloc(pMain,'u_tint'), P.tint[0], P.tint[1], P.tint[2], P.tint[3]);
+      gl.uniform1f(uloc(pMain,'u_shExpand'), P.shExpand);
+      gl.uniform1f(uloc(pMain,'u_shFactor'), P.shFactor);
+      gl.uniform2f(uloc(pMain,'u_shPos'), P.shPos[0], P.shPos[1]);
+      gl.uniform1i(uloc(pMain,'u_debug'), P.debug|0);
+      gl.uniform1f(uloc(pMain,'u_rim'), (P.rim===undefined?1:P.rim));
+      gl.uniform1f(uloc(pMain,'u_time'), now*0.001);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+
+    canvas.addEventListener('pointermove', function(e){
+      var r = canvas.getBoundingClientRect();
+      var dpr = inst.dpr || 1;
+      inst.target.x = (e.clientX - r.left - r.width/2) * dpr;
+      inst.target.y = -(e.clientY - r.top - r.height/2) * dpr;
+      inst.moved = true; inst.everMoved = true;
+    });
+    canvas.addEventListener('pointerleave', function(){ inst.moved = false; });
+
+    inst.dispose = function(){
+      var i = instances.indexOf(inst);
+      if(i >= 0) instances.splice(i, 1);
+      [rtBg, rtA, rtB].forEach(function(rt){
+        if(rt){ gl.deleteTexture(rt.tex); gl.deleteFramebuffer(rt.fb); }
+      });
+      rtBg = rtA = rtB = null;
+      var lose = gl.getExtension('WEBGL_lose_context');
+      if(lose) lose.loseContext();
+    };
+    instances.push(inst);
+    if(!raf){ raf = requestAnimationFrame(tick); }
+    return inst;
+  }
+
+  function tick(now){
+    var dt = Math.min((now-last)/1000, 1/30); last = now;
+    for(var i=0;i<instances.length;i++){
+      try{ instances[i].step(dt, now); }catch(e){ console.error(e); }
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  window.Glass = {
+    make: make,
+    DEFAULTS: DEFAULTS,
+    /* 统一的滑杆绑定：slider id → params key */
+    bind: function(inst, map, onChange){
+      Object.keys(map).forEach(function(id){
+        var el = document.getElementById(id);
+        if(!el) return;
+        var key = map[id];
+        var ALIAS = {shadowExpand:'shExpand', shadowFactor:'shFactor'};
+        key = ALIAS[key] || key;
+        var out = document.getElementById(id+'-v');
+        function sync(){
+          var v = parseFloat(el.value);
+          if(key === 'tintA'){ inst.P.tint[3] = v/100; }
+          else if(key === 'tintC'){ inst.P.tint[0]=v[0]; inst.P.tint[1]=v[1]; inst.P.tint[2]=v[2]; }
+          else { inst.P[key] = v; }
+          if(out) out.textContent = (Math.round(v*100)/100);
+          if(onChange) onChange(key, v);
+        }
+        el.addEventListener('input', sync); sync();
+      });
+    }
+  };
+})();
+
+</script>
+<script>
+
+(function(){
+  var S = Glass.make(document.getElementById('cS'), {debug:0, follow:'spring', shapeW:460, shapeH:300, radius:130});
+  var order=[10,11,12,1,2,3,6,0];
+  var names={10:'背景',11:'纵向模糊',12:'横向模糊',1:'SDF',2:'法线',3:'边缘因子',6:'菲涅尔+眩光',0:'最终合成'};
+  var idx=7, timer=null;
+  function select(d){
+    S.P.debug=d;
+    idx=order.indexOf(d);
+    document.querySelectorAll('#steps6 button').forEach(function(b){ b.setAttribute('aria-selected', String(parseInt(b.dataset.d,10)===d)); });
+    document.getElementById('r6a').textContent='STEP '+idx+' · '+names[d];
+    document.getElementById('r6b').textContent=(d===10?1:(d===11||d===12?2:(d===0?4:3)))+' / 4';
+  }
+  document.querySelectorAll('#steps6 button').forEach(function(b){
+    b.addEventListener('click',function(){ select(parseInt(b.dataset.d,10)); });
+  });
+  document.getElementById('b6next').addEventListener('click',function(){ select(order[(idx+1)%8]); });
+  document.getElementById('b6prev').addEventListener('click',function(){ select(order[(idx+7)%8]); });
+  document.getElementById('b6play').addEventListener('click',function(){
+    if(timer){ clearInterval(timer); timer=null; this.textContent='自动播放步骤'; return; }
+    this.textContent='暂停';
+    var sp=parseFloat(document.getElementById('s-sp').value);
+    timer=setInterval(function(){ select(order[(idx+1)%8]); }, 1200/parseFloat(document.getElementById('s-sp').value));
+  });
+  document.getElementById('s-sp').addEventListener('input',function(){
+    var v=parseFloat(this.value);
+    document.getElementById('s-sp-v').textContent=v.toFixed(1)+'×';
+    if(timer){ clearInterval(timer); timer=setInterval(function(){ select(order[(idx+1)%8]); },1200/v); }
+  });
+  document.getElementById('s-bm').addEventListener('input',function(){
+    var v=parseInt(this.value,10);
+    S.P.bgMode=v;
+    document.getElementById('s-bm-v').textContent=v?'条纹':'色斑';
+  });
+})();
+
+</script>
+</body>
+</html>
