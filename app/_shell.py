@@ -480,3 +480,21 @@ APP_CSS += r"""
 .topbar::after{content:"";position:absolute;inset:-10px -14px -14px;z-index:-1;pointer-events:none;
   background:linear-gradient(180deg,rgba(8,9,12,.92),rgba(8,9,12,0) 88%)}
 """
+
+APP_CSS += r"""
+/* 宽屏下首页排版不要被拉成一条：磁贴 / 精选按容器宽度自己分栏 */
+@media (min-width:760px){
+  .hx-head{padding-top:8px}
+  .hx-title{font-size:42px;max-width:20ch;line-height:1.1}
+  .hx-title em{-webkit-text-stroke-width:1.2px}
+  .hx-sub{max-width:52ch;font-size:13px}
+  .hx-search{max-width:640px}
+  .hx-grid{grid-template-columns:1.35fr 1fr;gap:12px;align-items:start}
+  .hx-card.wide{grid-column:1 / -1}
+  .hx-card h3{font-size:18px}
+  .hx-rail .card{flex:0 0 268px}
+  .hx-rail .card .mini{height:150px}
+  .dock .tab{width:76px}
+  .dock .tab b{font-size:10.5px}
+}
+"""
